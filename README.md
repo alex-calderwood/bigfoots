@@ -1,18 +1,4 @@
-WebSocket Notes Demo
-A minimal but robust WebSocket client/server example implementing real-time synchronization of notes between multiple clients.
-Features
-
-  Real-time sync between clients
-  Consistent message/state handling patterns
-  Full state sync for new connections
-  Automatic reconnection handling
-  Structured logging
-
-Setup
-
-Create the project structure:
-
-Copyyour-project/
+bigfoots/
   ├── public/
   │   ├── index.html  
   │   └── app.js
