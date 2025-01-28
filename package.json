@@ -1,0 +1,16 @@
+{
+  "name": "basic-client-setup",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "WebSocket Notes Demo A minimal but robust WebSocket client/server example implementing real-time synchronization of notes between multiple clients. Features",
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

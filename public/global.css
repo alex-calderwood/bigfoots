@@ -1,0 +1,46 @@
+/* public/global.css */
+:root {
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --border-color: #ffffff;
+    --input-bg: #000000;
+    --card-bg: #000000;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    color: var(--text-color);
+    background: var(--bg-color);
+}
+
+input, textarea {
+    background: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 8px;
+}
+
+button {
+    background: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #333;
+}
+
+.note {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.user-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}

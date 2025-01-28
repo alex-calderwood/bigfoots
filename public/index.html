@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Audience</title>
+        <link rel="stylesheet" href="/global.css">
+        <style>
+            #notes {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-top: 20px;
+            }
+            .note {
+                width: 200px;
+                min-height: 100px;
+                padding: 10px;
+                position: relative;
+            }
+
+            .status {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #333;
+                color: white;
+                padding: 10px;
+                border-radius: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="note-input">
+            <input type="text" id="noteInput" placeholder="Send note to dramaturg">
+            <button id="sendNote">Send</button>
+        </div>
+        <div id="notes"></div>
+        <div class="status">👁️ Audience</div>
+        <script src="/app.js"></script>
+    </body>
+</html>
