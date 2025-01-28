@@ -1,9 +1,4 @@
-bigfoots/
-  ├── public/
-  │   ├── index.html  
-  │   └── app.js
-  ├── server.js
-  └── README.md
+# Bigfoots Brains
 
 Install dependencies:
 

@@ -85,8 +85,6 @@ function sendMessage(msg, client) {
   client.socket.send(JSON.stringify(msg));
 }
 
-
-
 // MESSAGE HANDLERS MESSAGE HANDLERS MESSAGE HANDLERS MESSAGE HANDLERS 
 function handleCreateNote(msg, client) {
   const noteId = 'note-' + Math.random().toString(36).substr(2, 9);
@@ -175,7 +173,7 @@ wss.on('connection', (socket) => {
   const client = {
     id: clientId,
     socket: socket,
-    nick: clientNick
+    nick: clientNick,
   };
   appState.clients[clientId] = client;
   

@@ -6,6 +6,19 @@
     <title>Backstage</title>
     <link rel="stylesheet" href="/global.css">
     <style>
+    .feedback-attachment {
+        margin-top: 10px;
+    }
+
+    .feedback-attachment img {
+        max-width: 100%;
+        max-height: 150px;
+    }
+
+    .feedback-attachment video,
+    .feedback-attachment audio {
+        max-width: 100%;
+    }
     .role-indicator {
         position: absolute;
         top: 5px;
@@ -32,63 +45,68 @@
         height: 12px;
         border-radius: 50%;
     }
-        #users {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 20px;
-        }
-        
-        .user-card {
-            padding: 15px;
-            border-radius: 8px;
-            width: 150px;
-            cursor: move;
-            user-select: none;
-            position: absolute;
-        }
-        
-        .user-card.dragging {
-            opacity: 0.5;
-        }
-        
-        .user-emoji {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        
-        .user-id {
-            font-size: 12px;
-            opacity: 0.7;
-        }
-        
-        .status {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #333;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-        }
+    #users {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .user-card {
+        padding: 15px;
+        border-radius: 8px;
+        width: 150px;
+        cursor: move;
+        user-select: none;
+        position: absolute;
+    }
+    
+    .user-card.dragging {
+        opacity: 0.5;
+    }
+    
+    .user-emoji {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    
+    .user-id {
+        font-size: 12px;
+        opacity: 0.7;
+    }
+    
+    .status {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #333;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+    }
 
-        .note-controls {
-            margin: 20px 0;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+    .note-controls {
+        margin: 20px 0;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
 
-        #noteText {
-            flex-grow: 1;
-            max-width: 300px;
-        }
+    #noteText {
+        flex-grow: 1;
+        max-width: 300px;
+    }
 
-        .feedback {
-            margin-top: 10px;
-            font-size: 14px;
-            opacity: 0.8;
-        }
+    .feedback {
+        margin-top: 10px;
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    .toggle-feedback {
+        font-size: 0.8em;
+        padding: 2px 6px;
+    }
     </style>
 </head>
 <body>

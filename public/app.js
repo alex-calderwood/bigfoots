@@ -130,17 +130,53 @@ const appState = {
     });
   }
 
-  document.getElementById('sendNote').onclick = () => {
+
+  document.getElementById('sendNote').onclick = async () => {
       const noteInput = document.getElementById('noteInput');
+      const fileInput = document.getElementById('attachFile');
       const text = noteInput.value.trim();
-      if (text) {
-          sendFeedback({
+      const file = fileInput.files[0];
+      
+      if (text || file) {
+          const feedbackData = {
               type: 'message',
               text: text
-          });
+          };
+
+          if (file) {
+              const fileReader = new FileReader();
+              fileReader.onload = function(e) {
+                  feedbackData.attachment = {
+                      type: file.type,
+                      name: file.name,
+                      data: e.target.result
+                  };
+                  sendFeedback(feedbackData);
+              };
+              fileReader.readAsDataURL(file);
+          } else {
+              sendFeedback(feedbackData);
+          }
+          
+          // Clear inputs
           noteInput.value = '';
+          fileInput.value = '';
+          document.getElementById('fileName').textContent = '';
+          document.querySelector('.preview-container').style.display = 'none';
       }
   };
+
+  // document.getElementById('sendNote').onclick = () => {
+  //     const noteInput = document.getElementById('noteInput');
+  //     const text = noteInput.value.trim();
+  //     if (text) {
+  //         sendFeedback({
+  //             type: 'message',
+  //             text: text
+  //         });
+  //         noteInput.value = '';
+  //     }
+  // };
   
   // Initialize page
   function initPage() {
@@ -154,6 +190,43 @@ const appState = {
       });
     };
   }
-  
-  // Start everything when page loads
-  window.addEventListener('load', initPage);
+
+  function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        document.querySelector('.file-label').classList.remove('attached');
+        document.getElementById('fileName').textContent = '';
+        document.querySelector('.preview-container').style.display = 'none';
+        return;
+    }
+
+    // Show attachment indicator
+    document.querySelector('.file-label').classList.add('attached');
+    document.getElementById('fileName').textContent = file.name;
+
+    // Handle preview
+    document.querySelectorAll('.preview-container > *').forEach(el => el.style.display = 'none');
+    const previewContainer = document.querySelector('.preview-container');
+    
+    if (file.type.startsWith('image/')) {
+        const preview = document.getElementById('imagePreview');
+        preview.style.display = 'block';
+        previewContainer.style.display = 'block';
+        preview.src = URL.createObjectURL(file);
+    } else if (file.type.startsWith('video/')) {
+        const preview = document.getElementById('videoPreview');
+        preview.style.display = 'block';
+        previewContainer.style.display = 'block';
+        preview.src = URL.createObjectURL(file);
+    } else if (file.type.startsWith('audio/')) {
+        const preview = document.getElementById('audioPreview');
+        preview.style.display = 'block';
+        previewContainer.style.display = 'block';
+        preview.src = URL.createObjectURL(file);
+    }
+}
+
+document.getElementById('attachFile').addEventListener('change', handleFileSelect);
+
+// Start everything when page loads
+window.addEventListener('load', initPage);

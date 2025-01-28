@@ -53,35 +53,40 @@ function refreshUserCard(userData) {
                 position: updatedUserData.position
             });
         });
+
         
         
         document.getElementById('users').appendChild(userEl);
     }
-   
     userEl.innerHTML = `
         <div class="role-indicator" style="background-color: ${ROLE_COLORS[userData.role] || '#666'}"></div>
         <div class="user-emoji">${userData.nick}</div>
         <div class="user-id">${userData.id}</div>
-        <div class="user-role">${userData.role || 'unknown'}</div>
         ${userData.feedbacks ? `
-            <div class="user-feedbacks">
-                ${userData.feedbacks.slice(-3).map(feedback => {
-                    switch(feedback.type) {
-                        case 'message':
-                            return `<div class="feedback-message">"${feedback.text}"</div>`;
-                        case 'wav':
-                            return `<div class="feedback-audio">🎵 Audio Recording</div>`;
-                        case 'png':
-                            return `<div class="feedback-image">🖼️ Image</div>`;
-                        default:
-                            return `<div class="feedback-unknown">📎 ${feedback.type}</div>`;
-                    }
-                }).join('')}
+            <div class="feedback-header">
+                <button class="toggle-feedback" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'; this.textContent = this.nextElementSibling.style.display === 'none' ? 'feedback' : 'hide'">feedback</button>
+                <div class="user-feedbacks" style="display: none">
+                    ${userData.feedbacks.slice(-3).map(feedback => 
+                        `<div class="feedback">
+                            ${JSON.stringify(feedback.text)}
+                            ${feedback.attachment ? `
+                                <div class="feedback-attachment">
+                                    ${feedback.attachment.type.startsWith('image/') ? 
+                                        `<img src="${feedback.attachment.data}" alt="feedback image">` :
+                                    feedback.attachment.type.startsWith('audio/') ? 
+                                        `<audio controls src="${feedback.attachment.data}"></audio>` :
+                                    feedback.attachment.type.startsWith('video/') ? 
+                                        `<video controls src="${feedback.attachment.data}"></video>` :
+                                        `📎 ${feedback.attachment.name}`
+                                    }
+                                </div>
+                            ` : ''}
+                        </div>`
+                    ).join('')}
+                </div>
             </div>
         ` : ''}
     `;
-
-
     // Update position if available
     if (userData.position) {
         userEl.style.left = `${userData.position.x}px`;
