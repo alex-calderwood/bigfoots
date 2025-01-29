@@ -15,6 +15,7 @@ Create the project structure:
 ### Install dependencies:
 
 npm init -y
+
 npm install ws
 
 ### Run the server:
