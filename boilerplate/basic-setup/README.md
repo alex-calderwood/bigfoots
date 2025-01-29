@@ -14,15 +14,14 @@ Create the project structure:
 
 ### Install dependencies:
 
-npm init -y
-
-npm install ws
+    npm init -y
+    npm install ws
 
 ### Run the server:
 
-node server.js
+     node server.js
 
-Open http://localhost:8000 in multiple browser windows to test real-time sync
+Open http://localhost:8000 to test real-time sync between multiple clients
 
 ## Message Patterns
 
