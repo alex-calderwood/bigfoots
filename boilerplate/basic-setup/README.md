@@ -17,6 +17,8 @@ Create the project structure:
     npm init -y
     npm install ws
 
+If you get an error about npm not being found, you may need to [install Node](https://nodejs.org/en/download).
+
 ### Run the server:
 
      node server.js
