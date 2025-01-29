@@ -10,7 +10,7 @@ Structured logging
 
 ## Setup
 
-Create the project structure:
+Obtain a copy of this repo. [Instructions](https://zapier.com/blog/how-to-download-from-github/).
 
 ### Install dependencies:
 
