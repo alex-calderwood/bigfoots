@@ -1,4 +1,3 @@
-// App state
 const appState = {
     clientId: null,
     socket: null,
@@ -63,18 +62,8 @@ const appState = {
       const textEl = document.createElement('div');
       textEl.innerText = note.text;
 
-      // textEl.contentEditable = true;
-      // textEl.onblur = () => {
-      //   sendMessage({
-      //     type: 'updateNote',
-      //     noteId: note.id,
-      //     text: textEl.innerText
-      //   });
-      // };
       noteEl.appendChild(textEl);
     }
-    
-    // noteEl.style.backgroundColor = note.color;
   }
   
   function refreshAllNotes() {
@@ -165,18 +154,6 @@ const appState = {
           document.querySelector('.preview-container').style.display = 'none';
       }
   };
-
-  // document.getElementById('sendNote').onclick = () => {
-  //     const noteInput = document.getElementById('noteInput');
-  //     const text = noteInput.value.trim();
-  //     if (text) {
-  //         sendFeedback({
-  //             type: 'message',
-  //             text: text
-  //         });
-  //         noteInput.value = '';
-  //     }
-  // };
   
   // Initialize page
   function initPage() {

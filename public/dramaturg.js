@@ -54,8 +54,6 @@ function refreshUserCard(userData) {
             });
         });
 
-        
-        
         document.getElementById('users').appendChild(userEl);
     }
     userEl.innerHTML = `
