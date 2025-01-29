@@ -11,5 +11,7 @@ Run the server:
 
     node server.js
 
-Open http://localhost:8000 in multiple browser windows to test real-time sync
+Open http://localhost:8000 in multiple browser windows to test real-time sync. 
+Open http://localhost:8000/dramaturg.html in another window to see the connected clients.
+
 
