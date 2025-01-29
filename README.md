@@ -1,6 +1,6 @@
 # Bigfoots Brains
 
-Install dependencies:
+Obtain a copy of this repository ([How to]((https://zapier.com/blog/how-to-download-from-github/)). Navigate to the folder in a terminal. Install dependencies:
 
     npm init -y
     npm install ws
