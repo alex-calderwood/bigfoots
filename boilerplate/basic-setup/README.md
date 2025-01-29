@@ -21,7 +21,7 @@ Create the project structure:
 
      node server.js
 
-Open http://localhost:8000 to test real-time sync between multiple clients
+Open http://localhost:8000 in multiple windows to test real-time sync between clients
 
 ## Message Patterns
 
