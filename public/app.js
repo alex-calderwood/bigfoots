@@ -2,7 +2,10 @@ const appState = {
     clientId: null,
     socket: null,
     connected: false,
-    notes: {} // Mirror of server notes state
+    notes: {}, // Mirror of server notes state
+    peerConnection: null,
+    audioContext: null,
+    analyser: null,
   };
   
   // Send message to server
@@ -14,7 +17,6 @@ const appState = {
     console.log("cl->sv:" + msg.type, msg);
     appState.socket.send(JSON.stringify(msg));
   }
-
   // Used to send something back to the performance / dramaturg
   function sendFeedback(feedbackData) {
     sendMessage({
@@ -44,10 +46,23 @@ const appState = {
     if (noteEl) noteEl.remove();
   }
   
-  function handleClientLeft(msg) {
-    console.log("Client left:", msg.clientId);
-  }
-  
+  function handleTuneIn() {    
+    if (!appState.audioContext) {
+        console.log("cl: tuning in, creating AudioContext")
+        appState.audioContext = new AudioContext();
+        appState.audioContext.resume();
+
+        appState.audioWorklet = appState.audioContext.createGain();
+        appState.analyser = createAudioMeter(appState.audioContext, document.getElementById('broadcast'));
+        
+        // Chain: audioWorklet -> analyser -> destination
+        appState.audioWorklet.connect(appState.analyser);
+        appState.analyser.connect(appState.audioContext.destination);
+    } else {
+        console.log("already tuned in")
+    }
+}
+
   // UI Functions
   function refreshNote(note) {
     let noteEl = document.getElementById(note.id);
@@ -90,13 +105,13 @@ const appState = {
   
     appState.socket.addEventListener('message', (event) => {
       const msg = JSON.parse(event.data);
-      console.log("sv->cl:" + msg.type, msg);
+      logMsg("sv->cl:", msg, msg.type)
   
       const handlers = {
         initialize: handleInitialize,
         updateNote: handleUpdateNote,
         deleteNote: handleDeleteNote,
-        clientLeft: handleClientLeft
+        audio: handleAudioData,
       };
   
       const handler = handlers[msg.type];
@@ -118,7 +133,6 @@ const appState = {
       }, 5000);
     });
   }
-
 
   document.getElementById('sendNote').onclick = async () => {
       const noteInput = document.getElementById('noteInput');
@@ -158,14 +172,8 @@ const appState = {
   // Initialize page
   function initPage() {
     initializeWebSocket();
-  
-    // Wire up "New Note" button
-    document.getElementById('newNote').onclick = () => {
-      sendMessage({
-        type: 'createNote',
-        text: 'New note',
-      });
-    };
+    document.getElementById('tuneIn').onclick = handleTuneIn;
+    document.getElementById('attachFile').addEventListener('change', handleFileSelect);
   }
 
   function handleFileSelect(event) {
@@ -203,7 +211,21 @@ const appState = {
     }
 }
 
-document.getElementById('attachFile').addEventListener('change', handleFileSelect);
+function handleAudioData(msg) {
+  if (!appState.audioContext) {
+      return;
+  }
+  
+  const buffer = appState.audioContext.createBuffer(1, msg.data.length, appState.audioContext.sampleRate);
+  buffer.getChannelData(0).set(msg.data);
+  
+  const source = appState.audioContext.createBufferSource();
+  source.buffer = buffer;
+  source.connect(appState.audioWorklet); 
 
-// Start everything when page loads
+  const playTime = appState.audioContext.currentTime + 0.1;
+  source.start(playTime);
+}
+
+// start everything when page loads
 window.addEventListener('load', initPage);

@@ -2,15 +2,18 @@ const http = require("http");
 const ws = require("ws");
 const fs = require("fs");
 
-// Config
 const PORT = 8000;
 const HOST = 'localhost';
 
-// Add to appState:
 const appState = {
-  clients: {}, // Map of clientID to {id, socket, nick, role, position}
-  notes: {},   // Map of noteID to {id, text, color}
+  clients: {},          // Map of clientID to {id, socket, nick, role, position}
+  notes: {},            // Map of noteID to {id, text, color}
   dramaturgs: new Set() // Set of dramaturg client IDs
+}
+
+function logMsg(prefix, msg, ...rest) { 
+  if (msg?.type === 'audio') return;
+  console.log(prefix, msg, ...rest);
 }
 
 function handleUpdateUserPosition(msg, client) {
@@ -52,17 +55,30 @@ function handleIdentify(msg, client) {
                       nick: c.nick,
                       position: c.position,
                       feedbacks: c.feedbacks,
+                      role: c.role,
                   }])
           )
       }, client);
-  } else if (msg.role === 'audience') {
-    appState
+  } else {
+      // Notify all dramaturgs about the new non-dramaturg user
+      for (const dramaturgeId of appState.dramaturgs) {
+          const dramaturge = appState.clients[dramaturgeId];
+          sendMessage({
+              type: 'updateUser',
+              user: {
+                  id: client.id,
+                  nick: client.nick,
+                  position: client.position,
+                  role: client.role
+              }
+          }, dramaturge);
+      }
   }
 }
 
 // Broadcast to all clients
 function broadcast(msg) {
-  console.log("sv->cl*:" + msg.type, msg);
+  logMsg("sv->cl*:", msg, msg.type);
   const msgStr = JSON.stringify(msg);
   for (const client of Object.values(appState.clients)) {
     client.socket.send(msgStr);
@@ -71,7 +87,7 @@ function broadcast(msg) {
 
 // Broadcast except to sender
 function broadcastExcept(msg, excludeClient) {
-  console.log("sv->cls:" + msg.type, excludeClient.nick, msg);
+  logMsg("sv->cl*:", msg ,msg.type, excludeClient.nick, );
   const msgStr = JSON.stringify(msg);
   for (const client of Object.values(appState.clients)) {
     if (client.id === excludeClient.id) continue;
@@ -81,7 +97,7 @@ function broadcastExcept(msg, excludeClient) {
 
 // Send to specific client
 function sendMessage(msg, client) {
-  console.log("sv->cl:" + msg.type, client.nick, msg);
+  logMsg("sv->cl", msg, msg.type, client.nick)
   client.socket.send(JSON.stringify(msg));
 }
 
@@ -130,6 +146,20 @@ function handleDeleteNote(msg, client) {
     type: 'deleteNote',
     noteId: msg.noteId
   });
+}
+
+function handleAudioData(msg, client) {
+  if (client.role !== 'dramaturg') return; // Only relay audio from dramaturgs
+
+  // Broadcast to all non-dramaturg clients
+  for (const targetClient of Object.values(appState.clients)) {
+      if (targetClient.role !== 'dramaturg') {
+          sendMessage({
+              type: 'audio',
+              data: msg.data
+          }, targetClient);
+      }
+  }
 }
 // END MESSAGE HANDLERS END MESSAGE HANDLERS END MESSAGE HANDLERS END MESSAGE HANDLERS 
 
@@ -194,15 +224,17 @@ wss.on('connection', (socket) => {
           user: {
               id: client.id,
               nick: client.nick,
-              position: client.position
+              position: client.position,
+              role: client.role,
           }
       }, dramaturge);
   }
 
+
   // Handle messages
   socket.on('message', (data) => {
     const msg = JSON.parse(data);
-    console.log("cl->sv:ws:msg", client.nick, msg);
+    logMsg("cl->sv:ws:msg", msg, client.nick)
 
     const handlers = {
       createNote: handleCreateNote,
@@ -211,6 +243,7 @@ wss.on('connection', (socket) => {
       identify: handleIdentify,
       sendFeedback: handleSendFeedback,
       updateUserPosition: handleUpdateUserPosition,
+      audio: handleAudioData,
     };
 
     const handler = handlers[msg.type];

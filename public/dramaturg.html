@@ -130,10 +130,14 @@
     </div>
     <div class="note-controls">
         <input type="text" id="noteText" placeholder="Enter note text">
-        <button id="newNote">Broadcast</button>
+        <button id="newNote">Send to All</button>
+    </div>
+    <div id="broadcast" style="display:flex; flex-direction: column;">
+        <button id="startBroadcast" style="flex-grow: 1;">Start Broadcast</button>
     </div>
     <div id="users"></div>
     <div class="status">🎬 Backstage</div>
-    <script src="/dramaturg.js"></script>
+    <script src="/utils.js"></script>
+    <script src="/dramaturg.js"></script> 
 </body>
 </html>

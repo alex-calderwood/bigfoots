@@ -13,18 +13,21 @@ const ROLE_COLORS = {
     'dramaturg': '#9C27B0'    // Purple
 };
 
+
 // Send message to server
 function sendMessage(msg) {
     if (!appState.socket || !appState.connected) {
         console.error('Not connected to server');
         return;
     }
-    console.log("dr->sv:" + msg.type, msg);
+    logMsg("dr->sv:", msg, + msg.type);
     appState.socket.send(JSON.stringify(msg));
 }
 
+
 // Create/update a user card
 function refreshUserCard(userData) {
+    console.log("REFRESHING", userData, userData.role);
     let userEl = document.getElementById(userData.id);
     
     if (!userEl) {
@@ -102,6 +105,7 @@ function removeUserCard(userId) {
 function handleInitialize(msg) {
     appState.clientId = msg.clientId;
     appState.users = msg.users;
+    console.log("HANDLE INITIALIZE", appState.users)
     
     // Refresh all user cards
     Object.values(appState.users).forEach(refreshUserCard);
@@ -110,6 +114,10 @@ function handleInitialize(msg) {
 function handleUpdateUser(msg) {
     appState.users[msg.user.id] = msg.user;  // Just use what server sent
     refreshUserCard(msg.user);
+}
+
+function handleClientLeft(msg) {
+    delete appState.users[msg.clientId]
 }
 
 function handleDeleteUser(msg) {
@@ -157,6 +165,7 @@ function initializeWebSocket() {
             updateUser: handleUpdateUser,
             deleteUser: handleDeleteUser,
             userFeedback: handleUserFeedback,
+            clientLeft: handleClientLeft,
         };
 
         const handler = handlers[msg.type];
@@ -202,7 +211,36 @@ function initPage() {
     document.addEventListener('drop', (e) => {
         e.preventDefault();
     });
+
+    document.getElementById('startBroadcast').onclick = handleStartBroadcast;
 }
 
-// Start everything when page loads
+function handleStartBroadcast() {
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    .then(stream => {
+        const audioContext = new AudioContext();
+        audioContext.resume();
+        
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = createAudioMeter(audioContext, document.getElementById('broadcast'));
+        const processor = audioContext.createScriptProcessor(1024, 1, 1);
+        
+        // Chain: source -> analyser -> processor -> destination
+        source.connect(analyser);
+        source.connect(processor);
+        processor.connect(audioContext.destination);
+        
+        processor.onaudioprocess = (e) => {
+            const audioData = e.inputBuffer.getChannelData(0);
+            sendMessage({
+                type: 'audio',
+                data: Array.from(audioData)
+            });
+        };
+        
+        console.log("dr: Started broadcasting audio");
+    })
+    .catch(err => console.error('Error accessing microphone:', err)); 
+}
+
 window.addEventListener('load', initPage);
