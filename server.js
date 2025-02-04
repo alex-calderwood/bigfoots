@@ -1,6 +1,7 @@
 const http = require("http");
 const ws = require("ws");
 const fs = require("fs");
+const config = require("./config.json")
 
 const PORT = 8000;
 const HOST = 'localhost';
