@@ -57,12 +57,12 @@ function logMsg(prefix, msg, ...rest) {
         function updateBars() {
             analyser.getByteFrequencyData(analyzerData);
             const level = analyzerData.slice(0, 3)
-                .reduce((a, b) => a + b, 0) / (3 * 255);
+                .reduce((a, b) => a + b, 0) / (5 * 255);
                 
             bars.forEach((bar, i) => {
                 const distance = Math.abs(i - 2);
                 const scale = 1 - (distance / 5);
-                const height = Math.min(15, (level * scale * 30)); // Half height since we're splitting it
+                const height = Math.min(15, (level * scale * 30));
                 
                 bar.top.style.height = height + 'px';
                 bar.bottom.style.height = height + 'px';

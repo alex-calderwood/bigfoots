@@ -107,6 +107,11 @@
         font-size: 0.8em;
         padding: 2px 6px;
     }
+
+    #broadcast {
+        display: flex;
+        gap: 20px;
+    }
     </style>
 </head>
 <body>
@@ -132,8 +137,8 @@
         <input type="text" id="noteText" placeholder="Enter note text">
         <button id="newNote">Send to All</button>
     </div>
-    <div id="broadcast" style="display:flex; flex-direction: column;">
-        <button id="startBroadcast" style="flex-grow: 1;">Start Broadcast</button>
+    <div id="broadcast">
+        <button id="startBroadcast">Start Broadcast</button>
     </div>
     <div id="users"></div>
     <div class="status">🎬 Backstage</div>
