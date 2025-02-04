@@ -85,7 +85,7 @@ function broadcast(msg) {
   }
 }
 
-// Broadcast except to sender
+// Broadcast except to sender?
 function broadcastExcept(msg, excludeClient) {
   logMsg("sv->cl*:", msg ,msg.type, excludeClient.nick, );
   const msgStr = JSON.stringify(msg);
@@ -101,7 +101,7 @@ function sendMessage(msg, client) {
   client.socket.send(JSON.stringify(msg));
 }
 
-// MESSAGE HANDLERS MESSAGE HANDLERS MESSAGE HANDLERS MESSAGE HANDLERS 
+// ---------------- MESSAGE HANDLERS ----------------
 function handleCreateNote(msg, client) {
   const noteId = 'note-' + Math.random().toString(36).substr(2, 9);
   appState.notes[noteId] = {
@@ -161,8 +161,7 @@ function handleAudioData(msg, client) {
       }
   }
 }
-// END MESSAGE HANDLERS END MESSAGE HANDLERS END MESSAGE HANDLERS END MESSAGE HANDLERS 
-
+// ---------------- END MESSAGE HANDLERS ----------------
 
 // Setup HTTP server (for static files)
 const httpServer = http.createServer((req, res) => {

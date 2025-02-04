@@ -101,7 +101,7 @@ function removeUserCard(userId) {
     if (userEl) userEl.remove();
 }
 
-// MESSAGE HANDLERS MESSAGE HANDLERS MESSAGE HANDLERS MESSAGE HANDLERS  
+// ---------------- MESSAGE HANDLERS ----------------
 function handleInitialize(msg) {
     appState.clientId = msg.clientId;
     appState.users = msg.users;
@@ -135,8 +135,7 @@ function handleUserFeedback(msg) {
         refreshUserCard(appState.users[msg.userId]);
     }
 }
-// END MESSAGE HANDLERS END MESSAGE HANDLERS END MESSAGE HANDLERS END MESSAGE HANDLERS 
-
+// ---------------- END MESSAGE HANDLERS ----------------
 
 // Initialize WebSocket
 function initializeWebSocket() {
