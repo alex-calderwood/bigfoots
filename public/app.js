@@ -2,7 +2,7 @@ const appState = {
     clientId: null,
     socket: null,
     connected: false,
-    notes: {}, // Mirror of server notes state
+    notes: {},
     peerConnection: null,
     audioContext: null,
     analyser: null,

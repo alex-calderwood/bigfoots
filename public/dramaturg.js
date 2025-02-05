@@ -24,75 +24,86 @@ function sendMessage(msg) {
     appState.socket.send(JSON.stringify(msg));
 }
 
-
 // Create/update a user card
-function refreshUserCard(userData) {
-    console.log("REFRESHING", userData, userData.role);
+function refreshUserList(userData) {
+    // Create container if it doesn't exist
+    let containerEl = document.getElementById('users-container');
+    if (!containerEl) {
+        containerEl = document.createElement('div');
+        containerEl.id = 'users-container';
+        containerEl.className = 'users-container';
+        containerEl.innerHTML = `
+            <div class="users-header" onclick="toggleUserList()">
+                <span>Connected Users (<span id="user-count">0</span>)</span>
+                <span class="chevron">▼</span>
+            </div>
+            <div id="users" class="users-list"></div>
+        `;
+        document.body.appendChild(containerEl);
+    }
+
+    // Update or create user row
     let userEl = document.getElementById(userData.id);
-    
     if (!userEl) {
         userEl = document.createElement('div');
         userEl.id = userData.id;
-        userEl.className = 'user-card';
-        
-        // Make draggable
-        userEl.draggable = true;
-        userEl.addEventListener('dragstart', (e) => {
-            userEl.classList.add('dragging');
-        });
-
-        userEl.addEventListener('dragend', (e) => {
-            userEl.classList.remove('dragging');
-            // Update position while preserving other user data
-            const x = e.pageX - (userEl.offsetWidth / 2);
-            const y = e.pageY - (userEl.offsetHeight / 2);
-            const updatedUserData = {
-                ...appState.users[userData.id], // Preserve existing data
-                position: { x, y }
-            };
-            sendMessage({
-                type: 'updateUserPosition',
-                userId: userData.id,
-                position: updatedUserData.position
-            });
-        });
-
+        userEl.className = 'user-row';
         document.getElementById('users').appendChild(userEl);
     }
-    userEl.innerHTML = `
-        <div class="role-indicator" style="background-color: ${ROLE_COLORS[userData.role] || '#666'}"></div>
-        <div class="user-emoji">${userData.nick}</div>
-        <div class="user-id">${userData.id}</div>
-        ${userData.feedbacks ? `
-            <div class="feedback-header">
-                <button class="toggle-feedback" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'; this.textContent = this.nextElementSibling.style.display === 'none' ? 'feedback' : 'hide'">feedback</button>
-                <div class="user-feedbacks" style="display: none">
-                    ${userData.feedbacks.slice(-3).map(feedback => 
-                        `<div class="feedback">
-                            ${JSON.stringify(feedback.text)}
-                            ${feedback.attachment ? `
-                                <div class="feedback-attachment">
-                                    ${feedback.attachment.type.startsWith('image/') ? 
-                                        `<img src="${feedback.attachment.data}" alt="feedback image">` :
-                                    feedback.attachment.type.startsWith('audio/') ? 
-                                        `<audio controls src="${feedback.attachment.data}"></audio>` :
-                                    feedback.attachment.type.startsWith('video/') ? 
-                                        `<video controls src="${feedback.attachment.data}"></video>` :
-                                        `📎 ${feedback.attachment.name}`
-                                    }
-                                </div>
-                            ` : ''}
-                        </div>`
-                    ).join('')}
-                </div>
+
+    // Format the feedback HTML if there are feedbacks
+    const feedbacksHtml = userData.feedbacks?.length ? `
+        <div class="feedback-section">
+            <div class="user-feedbacks" style="display: none">
+                ${userData.feedbacks.slice(-3).map(feedback => `
+                    <div class="feedback">
+                        <div class="feedback-text">${JSON.stringify(feedback.text)}</div>
+                        ${feedback.attachment ? `
+                            <div class="feedback-attachment">
+                                ${feedback.attachment.type.startsWith('image/') ? 
+                                    `<img src="${feedback.attachment.data}" alt="feedback image">` :
+                                feedback.attachment.type.startsWith('audio/') ? 
+                                    `<audio controls src="${feedback.attachment.data}"></audio>` :
+                                feedback.attachment.type.startsWith('video/') ? 
+                                    `<video controls src="${feedback.attachment.data}"></video>` :
+                                    `📎 ${feedback.attachment.name}`
+                                }
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')}
             </div>
-        ` : ''}
+            <button class="toggle-feedback" onclick="toggleFeedback(this)">feedback</button>
+        </div>
+    ` : '';
+
+    userEl.innerHTML = `
+        <div class="user-info">
+            <span class="role-indicator" style="background-color: ${ROLE_COLORS[userData.role] || '#666'}"></span>
+            <span class="user-emoji">${userData.nick}</span>
+            <span class="user-id">${userData.id}</span>
+        </div>
+        ${feedbacksHtml}
     `;
-    // Update position if available
-    if (userData.position) {
-        userEl.style.left = `${userData.position.x}px`;
-        userEl.style.top = `${userData.position.y}px`;
-    }
+
+    // Update user count
+    const userCount = document.getElementById('users').children.length;
+    document.getElementById('user-count').textContent = userCount;
+}
+
+// Add this new function to handle feedback toggle
+function toggleFeedback(button) {
+    const feedbacksDiv = button.parentElement.querySelector('.user-feedbacks');
+    const isHidden = feedbacksDiv.style.display === 'none';
+    feedbacksDiv.style.display = isHidden ? 'block' : 'none';
+    button.textContent = isHidden ? 'hide' : 'feedback';
+}
+
+function toggleUserList() {
+    const usersList = document.getElementById('users');
+    const chevron = document.querySelector('.chevron');
+    const isHidden = usersList.classList.toggle('hidden');
+    chevron.textContent = isHidden ? '▼' : '▲';
 }
 
 // Remove a user card
@@ -108,12 +119,12 @@ function handleInitialize(msg) {
     console.log("HANDLE INITIALIZE", appState.users)
     
     // Refresh all user cards
-    Object.values(appState.users).forEach(refreshUserCard);
+    Object.values(appState.users).forEach(refreshUserList);
 }
 
 function handleUpdateUser(msg) {
     appState.users[msg.user.id] = msg.user;  // Just use what server sent
-    refreshUserCard(msg.user);
+    refreshUserList(msg.user);
 }
 
 function handleClientLeft(msg) {
@@ -131,7 +142,7 @@ function handleUserFeedback(msg) {
             appState.users[msg.userId].feedbacks = [];
         }
         appState.users[msg.userId].feedbacks.push(msg.feedback);
-        refreshUserCard(appState.users[msg.userId]);
+        refreshUserList(appState.users[msg.userId]);
     }
 }
 
@@ -141,7 +152,7 @@ function handlePromptResponse(msg) {
             appState.users[msg.userId].feedbacks = [];
         }
         appState.users[msg.userId].feedbacks.push(msg.feedback);
-        refreshUserCard(appState.users[msg.userId]);
+        refreshUserList(appState.users[msg.userId]);
     }
     const broadcast = document.getElementById("aibroadcast");
     const response = document.createElement('div');
