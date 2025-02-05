@@ -7,8 +7,6 @@ const configureAI = (userConfig) => {
 
 // Access Gemini through Google's Node.js API
 const callGemini = async (prompt) => { // https://ai.google.dev/gemini-api/docs/quickstart?lang=node
-    if (!config[config.providers.llm]) return null;
-    
     let gemini;
     try {
         gemini = require('@google/generative-ai').GoogleGenerativeAI;
@@ -25,8 +23,6 @@ const callGemini = async (prompt) => { // https://ai.google.dev/gemini-api/docs/
 
 // Access OpenAI
 const callOpenAI = async (prompt) => {
-    if (!config[config.providers.llm]) return null;
-    
     let OpenAI;
     try {
         OpenAI = require('openai').default;
@@ -87,30 +83,70 @@ const llmProviders = {
     openaiGemini: callOpenAIGemini, 
 };
 
-const ttsProviders = {
-    'eleven_labs': async (text) => {
-        if (!config[config.providers.text2speech]) {
-            console.error('Missing 11 Labs API key');
-            return null;
-        }
-        return new ArrayBuffer(0);
-    },
+// const callElevenLabs = async (text) => { // https://github.com/elevenlabs/elevenlabs-js
+//     let ElevenLabsClient, play;
+//     try {
+//         ({ ElevenLabsClient, play } = require('elevenlabs'));
+//     } catch(err) {
+//         console.log(`sv:ai:11labs: ${err}.\nInstall with:\n\tnpm install elevenlabs`)
+//         return null;
+//     }
     
-    azure: async (text) => {
-        if (!config[config.providers.text2speech]) {
-            console.error('Missing Azure API key');
-            return null;
-        }
-        return new ArrayBuffer(0);
+//     const client = new ElevenLabsClient({apiKey: config.eleven_labs.key});
+//     const audio = await client.textToSpeech.convert("JBFqnCBsd6RMkjVDRZzb", {
+//       text: text,
+//       model_id: config.eleven_labs.model,
+//       output_format: "mp3_44100_128",
+//     });
+//     console.log(audio);
+//     await play(audio);
+//     return audio;
+// };
+
+const callElevenLabs = async (text) => {
+    let ElevenLabsClient, play;
+    try {
+        ({ ElevenLabsClient, play } = require('elevenlabs'));
+    } catch(err) {
+        console.log(`sv:ai:11labs: ${err}.\nInstall with:\n\tnpm install elevenlabs`)
+        return null;
     }
+
+    const format = {
+        encoding: 'audio/mpeg',
+        sampleRate: 44100,
+        bitrate: 128,
+        codec: 'mp3'
+    }
+    
+    const client = new ElevenLabsClient({apiKey: config.eleven_labs.key});
+    const audio = await client.textToSpeech.convert("JBFqnCBsd6RMkjVDRZzb", {
+        text: text,
+        model_id: config.eleven_labs.model,
+        output_format: `${format.codec}_${format.sampleRate}_${format.bitrate}`,
+    });
+
+    // await play(audio);
+    
+    return {
+        stream: audio,
+        format: format, 
+    };
 };
 
+const ttsProviders = {
+    eleven_labs: callElevenLabs,
+};
+
+
 const llm = async (prompt) => {
+    if (!config[config.providers.llm]) return null;
     const provider = llmProviders[config.providers.llm];
     return provider ? provider(prompt) : null;
 };
 
 const textToSpeech = async (text) => {
+    if (!config[config.providers.text2speech]) return null;
     const provider = ttsProviders[config.providers.text2speech];
     return provider ? provider(text) : null;
 };

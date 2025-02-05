@@ -212,6 +212,7 @@ function initPage() {
     });
 
     document.getElementById('startBroadcast').onclick = handleStartBroadcast;
+    document.getElementById('startTTSBroadcast').onclick = handleTTSBroadcast;
 }
 
 function handleStartBroadcast() {
@@ -233,13 +234,30 @@ function handleStartBroadcast() {
             const audioData = e.inputBuffer.getChannelData(0);
             sendMessage({
                 type: 'audio',
-                data: Array.from(audioData)
+                data: Array.from(audioData),
+                format: {
+                    codec: 'pcm',
+                    sampleRate: audioContext.sampleRate,
+                    channels: 1,
+                    frameSize: 1024  // Could be useful for debugging/optimization
+                }
             });
         };
         
         console.log("dr: Started broadcasting audio");
     })
     .catch(err => console.error('Error accessing microphone:', err)); 
+}
+
+function handleTTSBroadcast() {
+    const text = document.getElementById('ttsText').value;
+    if (text.trim()) {
+        sendMessage({
+            type: 'tts',
+            text: text
+        });
+        document.getElementById('ttsText').value = ''; // Clear input after sending
+    }
 }
 
 window.addEventListener('load', initPage);

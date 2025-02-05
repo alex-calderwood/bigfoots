@@ -160,7 +160,8 @@ function handleAudioData(msg, client) {
       if (targetClient.role !== 'dramaturg') {
           sendMessage({
               type: 'audio',
-              data: msg.data
+              data: msg.data,
+              format: msg.format,
           }, targetClient);
       }
   }
@@ -246,6 +247,7 @@ wss.on('connection', (socket) => {
       sendFeedback: handleSendFeedback,
       updateUserPosition: handleUpdateUserPosition,
       audio: handleAudioData,
+      tts: handleTTS,
     };
 
     const handler = handlers[msg.type];
@@ -284,15 +286,61 @@ wss.on('connection', (socket) => {
     });
 });
 
+async function handleStreamData(audioResponse) {
+  const chunks = [];
+  let totalLength = 0;
+  
+  // Read all chunks from the stream
+  const reader = audioResponse.stream.reader;
+  while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      totalLength += value.length;
+  }
+  
+  // Combine all chunks into a single Uint8Array
+  const combinedArray = new Uint8Array(totalLength);
+  console.log("sv:stream", reader, "combinedArray", combinedArray, "length", totalLength)
+  let offset = 0;
+  for (const chunk of chunks) {
+      combinedArray.set(chunk, offset);
+      offset += chunk.length;
+  }
+  
+  const streamData = {
+      data:  Array.from(combinedArray), // convert to regular array from Uint8Array
+      format: audioResponse.format
+  };
+  console.log("sv:streamData", streamData);
+  return streamData;
+}
+
+async function handleTTS(msg, client) {
+  if (client.role !== 'dramaturg') return; // Only dramaturgs can broadcast TTS
+  
+  const aiResponse = await llm(msg.text);
+  const audioStream = await textToSpeech(aiResponse);
+  const audioData = await handleStreamData(audioStream);
+  
+  for (const targetClient of Object.values(appState.clients)) {
+      if (targetClient.role !== 'dramaturg') {
+          sendMessage({
+              type: 'audio',
+              data: audioData.data,
+              format: audioData.format  // Format info from ElevenLabs
+          }, targetClient);
+      }
+  }
+}
+
 // Start server
 httpServer.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}/`);
+  console.log(`Dramaturg running at http://${HOST}:${PORT}/dramaturg.`);
 
-  llm('hi').then(text => {
-    console.log("Result: ", text)
-  })
-
-  llm('hi again').then(text => {
-    console.log("Result: ", text)
-  })
+  // llm('Tell me a long description of a neuroscience concept with the style of Ubu from Ubu Roi.').then(text => {
+  //   console.log("Result: ", text)
+  //   textToSpeech(text);
+  // })
 });

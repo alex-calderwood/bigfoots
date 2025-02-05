@@ -211,20 +211,47 @@ function handleFileSelect(event) {
   }
 }
 
-function handleAudioData(msg) {
-  if (!appState.audioContext) {
+async function handleAudioData(msg) {
+  if (!appState.audioContext) return;
+
+  // Always expect a format field that specifies the type
+  if (!msg.format) {
+      console.error("No audio format specified");
       return;
   }
-  
-  const buffer = appState.audioContext.createBuffer(1, msg.data.length, appState.audioContext.sampleRate);
-  buffer.getChannelData(0).set(msg.data);
-  
-  const source = appState.audioContext.createBufferSource();
-  source.buffer = buffer;
-  source.connect(appState.audioWorklet); 
 
-  const playTime = appState.audioContext.currentTime + 0.1;
-  source.start(playTime);
+  try {
+      let audioBuffer;
+      switch (msg.format.codec) {
+          case 'mp3':
+              // MP3 needs to be decoded
+              console.log("cl:audio", {format: msg.format, data: msg.data})
+              const mp3Data = new Uint8Array(msg.data);
+              audioBuffer = await appState.audioContext.decodeAudioData(mp3Data.buffer);
+              break;
+          case 'pcm':
+              // PCM can be directly loaded into buffer
+              audioBuffer = appState.audioContext.createBuffer(
+                  1, // mono
+                  msg.data.length,
+                  msg.format.sampleRate || appState.audioContext.sampleRate
+              );
+              audioBuffer.getChannelData(0).set(msg.data);
+              break;
+          default:
+              console.error("Unsupported audio format:", msg.format.codec);
+              return;
+      }
+
+      // Play the audio
+      const source = appState.audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(appState.audioWorklet);
+      source.start(appState.audioContext.currentTime + 0.1);
+
+  } catch (error) {
+      console.error("Error processing audio data:", error);
+  }
 }
 
 // start everything when page loads
