@@ -112,6 +112,30 @@
         display: flex;
         gap: 20px;
     }
+
+    .response {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+    }
+
+    .response .prompt, 
+    .response .ai-response {
+        flex: 1;
+        padding: 0.5rem;
+    }
+
+    .response .arrow {
+        opacity: 0.6;
+    }
+
+    .response .ai-response {
+        background: rgba(255, 255, 255, 0.05);
+    }
     </style>
 </head>
 <body>
@@ -140,9 +164,9 @@
     <div id="broadcast">
         <button id="startBroadcast">Start Broadcast</button>
     </div>
-    <div id="ttsBroadcast">
-        <input type="text" id="ttsText" placeholder="Enter text for TTS broadcast">
-        <button id="startTTSBroadcast">Broadcast TTS</button>
+    <div id="aibroadcast">
+        <input type="text" id="prompt" placeholder="Prompt to LLM">
+        <button id="sendPrompt">Broadcast AI Response</button>
     </div>
     <div id="users"></div>
     <div class="status">🎬 Backstage</div>

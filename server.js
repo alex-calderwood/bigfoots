@@ -247,7 +247,7 @@ wss.on('connection', (socket) => {
       sendFeedback: handleSendFeedback,
       updateUserPosition: handleUpdateUserPosition,
       audio: handleAudioData,
-      tts: handleTTS,
+      prompt: handlePrompt,
     };
 
     const handler = handlers[msg.type];
@@ -316,7 +316,7 @@ async function handleStreamData(audioResponse) {
   return streamData;
 }
 
-async function handleTTS(msg, client) {
+async function handlePrompt(msg, client) {
   if (client.role !== 'dramaturg') return; // Only dramaturgs can broadcast TTS
   
   const aiResponse = await llm(msg.text);
@@ -328,11 +328,24 @@ async function handleTTS(msg, client) {
           sendMessage({
               type: 'audio',
               data: audioData.data,
-              format: audioData.format  // Format info from ElevenLabs
+              format: audioData.format,
+              text: aiResponse,
           }, targetClient);
       }
   }
+
+  // tell the dramaturgs what happened
+  for (const dramaturgeId of appState.dramaturgs) {
+    const dramaturge = appState.clients[dramaturgeId];
+    sendMessage({
+        type: 'promptResponse',
+        prompt: msg.text,
+        response: aiResponse,
+    }, dramaturge);
+  }
 }
+
+
 
 // Start server
 httpServer.listen(PORT, HOST, () => {

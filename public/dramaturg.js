@@ -126,7 +126,6 @@ function handleDeleteUser(msg) {
 }
 
 function handleUserFeedback(msg) {
-    console.log('handle feedback', msg)
     if (appState.users[msg.userId]) {
         if (!appState.users[msg.userId].feedbacks) {
             appState.users[msg.userId].feedbacks = [];
@@ -134,6 +133,26 @@ function handleUserFeedback(msg) {
         appState.users[msg.userId].feedbacks.push(msg.feedback);
         refreshUserCard(appState.users[msg.userId]);
     }
+}
+
+function handlePromptResponse(msg) {
+    if (appState.users[msg.userId]) {
+        if (!appState.users[msg.userId].feedbacks) {
+            appState.users[msg.userId].feedbacks = [];
+        }
+        appState.users[msg.userId].feedbacks.push(msg.feedback);
+        refreshUserCard(appState.users[msg.userId]);
+    }
+    const broadcast = document.getElementById("aibroadcast");
+    const response = document.createElement('div');
+    response.className = 'response';
+    response.innerHTML = `
+        <div class="prompt">${msg.prompt}</div>
+        <div class="arrow">→</div>
+        <div class="ai-response">${msg.response || 'Waiting for response...'}</div>
+    `;
+    
+    broadcast.appendChild(response);
 }
 // ---------------- END MESSAGE HANDLERS ----------------
 
@@ -160,11 +179,12 @@ function initializeWebSocket() {
         console.log("sv->cl:" + msg.type, msg);
 
         const handlers = {
-            initialize: handleInitialize,
-            updateUser: handleUpdateUser,
-            deleteUser: handleDeleteUser,
-            userFeedback: handleUserFeedback,
-            clientLeft: handleClientLeft,
+            initialize:     handleInitialize,
+            updateUser:     handleUpdateUser,
+            deleteUser:     handleDeleteUser,
+            userFeedback:   handleUserFeedback,
+            clientLeft:     handleClientLeft,
+            promptResponse: handlePromptResponse,
         };
 
         const handler = handlers[msg.type];
@@ -212,7 +232,7 @@ function initPage() {
     });
 
     document.getElementById('startBroadcast').onclick = handleStartBroadcast;
-    document.getElementById('startTTSBroadcast').onclick = handleTTSBroadcast;
+    document.getElementById('sendPrompt').onclick = sendPrompt;
 }
 
 function handleStartBroadcast() {
@@ -249,14 +269,15 @@ function handleStartBroadcast() {
     .catch(err => console.error('Error accessing microphone:', err)); 
 }
 
-function handleTTSBroadcast() {
-    const text = document.getElementById('ttsText').value;
+
+function sendPrompt() {
+    const text = document.getElementById('prompt').value;
     if (text.trim()) {
         sendMessage({
-            type: 'tts',
+            type: 'prompt',
             text: text
         });
-        document.getElementById('ttsText').value = ''; // Clear input after sending
+        document.getElementById('prompt').value = ''; // Clear input after sending
     }
 }
 
