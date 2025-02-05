@@ -45,6 +45,8 @@ function handleUpdateUserPosition(msg, client) {
 
 function handleIdentify(msg, client) {
   client.role = msg.role;
+  client.nick = msg.nick || ('👤' + client.id.slice(-4)); // Use provided name or fallback
+  
   if (msg.role === 'dramaturg') {
       appState.dramaturgs.add(client.id);
       

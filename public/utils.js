@@ -12,43 +12,48 @@ function logMsg(prefix, msg, ...rest) {
         const analyzerData = new Uint8Array(analyser.frequencyBinCount);
         
         const container = document.createElement('div');
-        container.style.display = 'flex';
-        container.style.gap = '3px';
-        container.style.alignItems = 'center'; 
-        container.style.justifyContent = 'center';
-        container.style.height = '40px';
-        container.style.margin = '10px';
-        container.style.flexGrow = '1';
+        container.style.cssText = `
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            align-items: center;
+            height: 160px;
+            max-width: 400px;
+        `;
         
-        // Each bar is now a container with two rectangles
+        // Create 5 bar pairs (top and bottom)
         const bars = Array.from({length: 5}, () => {
             const barContainer = document.createElement('div');
-            barContainer.style.display = 'flex';
-            barContainer.style.flexDirection = 'column';
-            barContainer.style.alignItems = 'center';
-            barContainer.style.height = '40px';
-            barContainer.style.justifyContent = 'center';
-
-            // Top half
+            barContainer.style.cssText = `
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;
+                height: 100%;
+                justify-content: center;
+            `;
+            
             const topBar = document.createElement('div');
-            topBar.style.width = '4px';
-            topBar.style.backgroundColor = '#666';
-            topBar.style.height = '1px';
-            topBar.style.borderRadius = '2px';
-            topBar.style.transition = 'height 0.05s';
-
-            // Bottom half
             const bottomBar = document.createElement('div');
-            bottomBar.style.width = '4px';
-            bottomBar.style.backgroundColor = '#666';
-            bottomBar.style.height = '1px';
-            bottomBar.style.borderRadius = '2px';
-            bottomBar.style.transition = 'height 0.05s';
-
+            
+            [topBar, bottomBar].forEach(bar => {
+                bar.style.cssText = `
+                    width: 8px;
+                    background-color: white;
+                    height: 2px;
+                    border-radius: 4px;
+                    transition: height 0.05s;
+                    transform-origin: bottom;
+                `;
+            });
+            
+            // Set specific transform origin for top bar
+            topBar.style.transformOrigin = 'bottom';
+            bottomBar.style.transformOrigin = 'top';
+            
             barContainer.appendChild(topBar);
             barContainer.appendChild(bottomBar);
             container.appendChild(barContainer);
-            
             return {top: topBar, bottom: bottomBar};
         });
         
@@ -56,14 +61,12 @@ function logMsg(prefix, msg, ...rest) {
         
         function updateBars() {
             analyser.getByteFrequencyData(analyzerData);
-            const level = analyzerData.slice(0, 3)
-                .reduce((a, b) => a + b, 0) / (5 * 255);
+            const level = analyzerData.slice(0, 3).reduce((a, b) => a + b, 0) / (5 * 255);
                 
             bars.forEach((bar, i) => {
                 const distance = Math.abs(i - 2);
                 const scale = 1 - (distance / 5);
-                const height = Math.min(15, (level * scale * 30));
-                
+                const height = Math.min(30, (level * scale * 60));
                 bar.top.style.height = height + 'px';
                 bar.bottom.style.height = height + 'px';
             });

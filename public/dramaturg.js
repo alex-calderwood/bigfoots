@@ -26,20 +26,17 @@ function sendMessage(msg) {
 
 // Create/update a user card
 function refreshUserList(userData) {
-    // Create container if it doesn't exist
-    let containerEl = document.getElementById('users-container');
-    if (!containerEl) {
-        containerEl = document.createElement('div');
-        containerEl.id = 'users-container';
+    // Get or create users list container
+    let usersList = document.getElementById('users');
+    if (!usersList) {
+        const containerEl = document.createElement('div');
         containerEl.className = 'users-container';
         containerEl.innerHTML = `
-            <div class="users-header" onclick="toggleUserList()">
-                <span>Connected Users (<span id="user-count">0</span>)</span>
-                <span class="chevron">▼</span>
-            </div>
+            <div class="users-tab" onclick="toggleUsersPanel()">Users (<span id="user-count">0</span>)</div>
             <div id="users" class="users-list"></div>
         `;
         document.body.appendChild(containerEl);
+        usersList = document.getElementById('users');
     }
 
     // Update or create user row
@@ -48,7 +45,7 @@ function refreshUserList(userData) {
         userEl = document.createElement('div');
         userEl.id = userData.id;
         userEl.className = 'user-row';
-        document.getElementById('users').appendChild(userEl);
+        usersList.appendChild(userEl);
     }
 
     // Format the feedback HTML if there are feedbacks
@@ -57,7 +54,7 @@ function refreshUserList(userData) {
             <div class="user-feedbacks" style="display: none">
                 ${userData.feedbacks.slice(-3).map(feedback => `
                     <div class="feedback">
-                        <div class="feedback-text">${JSON.stringify(feedback.text)}</div>
+                        <div class="feedback-text">${feedback.text}</div>
                         ${feedback.attachment ? `
                             <div class="feedback-attachment">
                                 ${feedback.attachment.type.startsWith('image/') ? 
@@ -87,8 +84,10 @@ function refreshUserList(userData) {
     `;
 
     // Update user count
-    const userCount = document.getElementById('users').children.length;
-    document.getElementById('user-count').textContent = userCount;
+    const userCount = document.getElementById('user-count');
+    if (userCount) {
+        userCount.textContent = usersList.children.length;
+    }
 }
 
 // Add this new function to handle feedback toggle
@@ -97,13 +96,6 @@ function toggleFeedback(button) {
     const isHidden = feedbacksDiv.style.display === 'none';
     feedbacksDiv.style.display = isHidden ? 'block' : 'none';
     button.textContent = isHidden ? 'hide' : 'feedback';
-}
-
-function toggleUserList() {
-    const usersList = document.getElementById('users');
-    const chevron = document.querySelector('.chevron');
-    const isHidden = usersList.classList.toggle('hidden');
-    chevron.textContent = isHidden ? '▼' : '▲';
 }
 
 // Remove a user card
@@ -178,8 +170,7 @@ function initializeWebSocket() {
         console.log('dr->sv:ws:connect');
         appState.connected = true;
         
-        // Identify as dramaturg
-        sendMessage({
+        sendMessage({ // Identify as dramaturg
             type: 'identify',
             role: 'dramaturg'
         });
@@ -270,7 +261,7 @@ function handleStartBroadcast() {
                     codec: 'pcm',
                     sampleRate: audioContext.sampleRate,
                     channels: 1,
-                    frameSize: 1024  // Could be useful for debugging/optimization
+                    frameSize: 1024,
                 }
             });
         };
@@ -289,6 +280,31 @@ function sendPrompt() {
             text: text
         });
         document.getElementById('prompt').value = ''; // Clear input after sending
+    }
+}
+
+function initializeUsersPanel() {
+    const container = document.querySelector('.users-container');
+    const tab = document.querySelector('.users-tab');
+    const containerHeight = container.offsetHeight;
+    
+    // Set initial position of the tab
+    tab.style.bottom = containerHeight + 'px';
+}
+
+// Call it when the page loads
+window.addEventListener('load', initializeUsersPanel);
+
+function toggleUsersPanel() {
+    const container = document.querySelector('.users-container');
+    const tab = document.querySelector('.users-tab');
+    const isHidden = container.classList.toggle('hidden');
+    const containerHeight = container.offsetHeight;
+    
+    if (isHidden) {
+        tab.style.bottom = '0';
+    } else {
+        tab.style.bottom = containerHeight + 'px';
     }
 }
 

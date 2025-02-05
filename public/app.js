@@ -6,47 +6,49 @@ const appState = {
     peerConnection: null,
     audioContext: null,
     analyser: null,
-  };
+    nick: null,
+    role: 'audience'
+};
   
-  // Send message to server
-  function sendMessage(msg) {
-    if (!appState.socket || !appState.connected) {
-      console.error('Not connected to server');
-      return;
-    }
-    console.log("cl->sv:" + msg.type, msg);
-    appState.socket.send(JSON.stringify(msg));
+// Send message to server
+function sendMessage(msg) {
+  if (!appState.socket || !appState.connected) {
+    console.error('Not connected to server');
+    return;
   }
-  // Used to send something back to the performance / dramaturg
-  function sendFeedback(feedbackData) {
-    sendMessage({
-          type: 'sendFeedback',
-          feedback: {
-              ...feedbackData,
-              timestamp: Date.now()
-          }
-      });
-  }
- 
-  // ---------------- MESSAGE HANDLERS ----------------
-  function handleInitialize(msg) {
-    appState.clientId = msg.clientId;
-    appState.notes = msg.notes;
-    refreshAllNotes();
-  }
-  
-  function handleUpdateNote(msg) {
-    appState.notes[msg.note.id] = msg.note;
-    refreshNote(msg.note);
-  }
-  
-  function handleDeleteNote(msg) {
-    delete appState.notes[msg.noteId];
-    const noteEl = document.getElementById(msg.noteId);
-    if (noteEl) noteEl.remove();
-  }
-  // ---------------- END MESSAGE HANDLERS ----------------
-  
+  console.log("cl->sv:" + msg.type, msg);
+  appState.socket.send(JSON.stringify(msg));
+}
+// Used to send something back to the performance / dramaturg
+function sendFeedback(feedbackData) {
+  sendMessage({
+        type: 'sendFeedback',
+        feedback: {
+            ...feedbackData,
+            timestamp: Date.now()
+        }
+    });
+}
+
+// ---------------- MESSAGE HANDLERS ----------------
+function handleInitialize(msg) {
+  appState.clientId = msg.clientId;
+  appState.notes = msg.notes;
+  refreshAllNotes();
+}
+
+function handleUpdateNote(msg) {
+  appState.notes[msg.note.id] = msg.note;
+  refreshNote(msg.note);
+}
+
+function handleDeleteNote(msg) {
+  delete appState.notes[msg.noteId];
+  const noteEl = document.getElementById(msg.noteId);
+  if (noteEl) noteEl.remove();
+}
+// ---------------- END MESSAGE HANDLERS ----------------
+
 function refreshNote(note) {
   let noteEl = document.getElementById(note.id);
   
@@ -80,9 +82,10 @@ function initializeWebSocket() {
     console.log('cl->sv:ws:connect');
     appState.connected = true;
 
-      sendMessage({
-        type: 'identify',
-        role: 'audience'
+    sendMessage({
+      type: 'identify',
+      role: appState.role,
+      nick: appState.nick
     });
   });
 
@@ -152,28 +155,86 @@ document.getElementById('sendNote').onclick = async () => {
     }
 };
   
-  // Initialize page
+// Initialize page
 function initPage() {
-  initializeWebSocket();
+  promptForName();
   document.getElementById('tuneIn').onclick = handleTuneIn;
   document.getElementById('attachFile').addEventListener('change', handleFileSelect);
 }
 
-function handleTuneIn() {    
-  if (!appState.audioContext) {
-      console.log("cl: tuning in, creating AudioContext")
-      appState.audioContext = new AudioContext();
-      appState.audioContext.resume();
+function promptForName() {
+  // Create modal overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  `;
 
-      appState.audioWorklet = appState.audioContext.createGain();
-      appState.analyser = createAudioMeter(appState.audioContext, document.getElementById('broadcast'));
-      
-      // Chain: audioWorklet -> analyser -> destination
-      appState.audioWorklet.connect(appState.analyser);
-      appState.analyser.connect(appState.audioContext.destination);
-  } else {
-      console.log("already tuned in")
+  const form = document.createElement('div');
+  form.style.cssText = `
+    padding: 20px;
+    text-align: center;
+  `;
+  
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Enter your name';
+  input.style.marginBottom = '10px';
+  
+  const button = document.createElement('button');
+  button.textContent = 'Join';
+  
+  form.appendChild(input);
+  form.appendChild(document.createElement('br'));
+  form.appendChild(button);
+  overlay.appendChild(form);
+  document.body.appendChild(overlay);
+
+  // Handle form submission
+  function handleSubmit() {
+    const name = input.value.trim();
+    if (name) {
+      document.body.removeChild(overlay);
+      appState.nick = '👤' + name.slice(-12);
+      initializeWebSocket();
+    }
   }
+
+  button.onclick = handleSubmit;
+  input.onkeypress = (e) => {
+    if (e.key === 'Enter') handleSubmit();
+  };
+}
+
+function handleTuneIn() {    
+    const tuneInButton = document.getElementById('tuneIn');
+    
+    if (!appState.audioContext) {
+        appState.audioContext = new AudioContext();
+        appState.audioContext.resume();
+        
+        // Create and connect audio nodes
+        appState.audioWorklet = appState.audioContext.createGain();
+        appState.analyser = createAudioMeter(appState.audioContext, document.getElementById('broadcast'));
+        appState.audioWorklet.connect(appState.analyser);
+        appState.analyser.connect(appState.audioContext.destination);
+        
+        tuneInButton.textContent = 'Leave Broadcast';
+    } else {
+        // Clean up audio context and UI
+        appState.audioContext.close();
+        appState.audioContext = null;
+        document.getElementById('broadcast').innerHTML = '';
+        tuneInButton.textContent = 'Tune In';
+    }
 }
 
 function handleFileSelect(event) {

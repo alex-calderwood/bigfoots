@@ -19,9 +19,8 @@
                 gap: 10px;
                 margin-top: 20px;
             }
-            .noteInput {
+            #noteInput {
                 flex-grow: 1;
-                max-width: 300px;
             }
             .note {
                 width: 200px;
@@ -75,7 +74,23 @@
             
             #broadcast {
                 display: flex;
-                gap: 20px;
+                justify-content: center;
+                align-items: center;
+                height: calc(100vh - 250px);
+            }
+            
+            #tune-button-container {
+                position: fixed;
+                bottom: 40px;
+                left: 0;
+                right: 0;
+                text-align: center;
+            }
+            
+            #tuneIn {
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
             }
         </style>
     </head>
@@ -95,7 +110,10 @@
         <div id="notes"></div>
         <div class="status">👁️ Audience</div>
         <div id="broadcast">
-            <button id="tuneIn">Listen to Broadcast</button>
+            <div id="meter-container"></div>
+        </div>
+        <div id="tune-button-container">
+            <button id="tuneIn">Tune In</button>
         </div>
         <script src="/utils.js"></script>
         <script src="/app.js"></script>
