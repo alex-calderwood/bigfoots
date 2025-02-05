@@ -1,13 +1,14 @@
-const http = require("http");
-const ws = require("ws");
-const fs = require("fs");
-const config = require("./config.json")
+const http    = require("http");
+const ws      = require("ws");
+const fs      = require("fs");
+const config  = require("./config.json");
+const os      = require("os")
 
 const { llm, textToSpeech, configureAI} = require('./ai/providers');
 configureAI(config);
 
 const PORT = 8000;
-const HOST = 'localhost';
+const HOST = '0.0.0.0';
 
 const appState = {
   clients: {},          // Map of clientID to {id, socket, nick, role, position}
@@ -345,15 +346,19 @@ async function handlePrompt(msg, client) {
   }
 }
 
-
-
 // Start server
 httpServer.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}/`);
-  console.log(`Dramaturg running at http://${HOST}:${PORT}/dramaturg.`);
-
-  // llm('Tell me a long description of a neuroscience concept with the style of Ubu from Ubu Roi.').then(text => {
-  //   console.log("Result: ", text)
-  //   textToSpeech(text);
-  // })
+  console.log(`Dramaturg running at http://${HOST}:${PORT}/dramaturg.html`);
+  console.log('\nNetwork access:');
+  const interfaces = os.networkInterfaces();
+  Object.entries(interfaces).forEach(([name, nets]) => {
+      nets.forEach((net) => {
+          if (net.family === 'IPv4' && !net.internal) {
+              console.log(`\nInterface ${name}:`);
+              console.log(`Participant: http://${net.address}:${PORT}/`);
+              console.log(`Dramaturg: http://${net.address}:${PORT}/dramaturg.html`);
+          }
+      });
+  });
 });
