@@ -11,6 +11,8 @@
   "license": "ISC",
   "description": "WebSocket Notes Demo A minimal but robust WebSocket client/server example implementing real-time synchronization of notes between multiple clients. Features",
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "openai": "^4.82.0",
     "ws": "^8.18.0"
   }
 }

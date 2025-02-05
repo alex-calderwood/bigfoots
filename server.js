@@ -3,6 +3,9 @@ const ws = require("ws");
 const fs = require("fs");
 const config = require("./config.json")
 
+const { llm, textToSpeech, configureAI} = require('./ai/providers');
+configureAI(config);
+
 const PORT = 8000;
 const HOST = 'localhost';
 
@@ -230,7 +233,6 @@ wss.on('connection', (socket) => {
       }, dramaturge);
   }
 
-
   // Handle messages
   socket.on('message', (data) => {
     const msg = JSON.parse(data);
@@ -285,4 +287,12 @@ wss.on('connection', (socket) => {
 // Start server
 httpServer.listen(PORT, HOST, () => {
   console.log(`Server running at http://${HOST}:${PORT}/`);
+
+  llm('hi').then(text => {
+    console.log("Result: ", text)
+  })
+
+  llm('hi again').then(text => {
+    console.log("Result: ", text)
+  })
 });
