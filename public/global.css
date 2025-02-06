@@ -20,6 +20,16 @@ input, textarea {
     padding: 8px;
 }
 
+.input-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.input-container input {
+    flex-grow: 1;
+}
+
 button {
     background: var(--card-bg);
     color: var(--text-color);

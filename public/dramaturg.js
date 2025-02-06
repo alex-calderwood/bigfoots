@@ -234,8 +234,10 @@ function initPage() {
     });
 
     document.getElementById('startBroadcast').onclick = handleStartBroadcast;
-    document.getElementById('sendPrompt').onclick = sendPrompt;
 }
+
+document.getElementById('sendPrompt').onclick = sendPrompt;
+
 
 function handleStartBroadcast() {
     navigator.mediaDevices.getUserMedia({ audio: true, video: false })
@@ -273,6 +275,7 @@ function handleStartBroadcast() {
 
 
 function sendPrompt() {
+    console.log("sendPrompt");
     const text = document.getElementById('prompt').value;
     if (text.trim()) {
         sendMessage({

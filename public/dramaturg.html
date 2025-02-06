@@ -45,7 +45,6 @@
         height: 12px;
         border-radius: 50%;
     }
-
     #users {
         padding: 0;
         margin: 0;
@@ -57,24 +56,30 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background-color: #f8f9fa;
         border-top: 1px solid #dee2e6;
         z-index: 1000;
+        background: var(--bg-color);
+        display: flex;
+        flex-direction: column;
     }
 
     .users-header {
-        cursor: pointer;
         padding: 12px;
-        background-color: #e9ecef;
+        border-bottom: 1px solid #dee2e6;
+        background: var(--bg-color);
+    }
+    
+    #startBroadcast {
+        flex-grow: 1;
+    }
+
+    #aibroadcast {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
     }
 
     .users-list {
         max-height: 30vh;
         overflow-y: auto;
-        background-color: white;
         padding: 0;
     }
 
@@ -126,6 +131,7 @@
         align-self: stretch;
         border: none;
         border-left: 1px solid #dee2e6;
+        min-width: 100px;
     }
 
     .user-feedbacks {
@@ -182,21 +188,13 @@
     }
 
     .status {
-        position: fixed;
-        bottom: calc(30vh + 50px);
+        position: absolute;
+        top: -70px;
         right: 20px;
         background: #333;
         color: white;
         padding: 10px;
         border-radius: 5px;
-        z-index: 1001;
-    }
-
-    .note-controls {
-        margin: 20px 0;
-        display: flex;
-        gap: 10px;
-        align-items: center;
     }
 
     #noteText {
@@ -257,19 +255,23 @@
             <span>Dramaturg</span>
         </div>
     </div>
-    <div class="note-controls">
+    <!-- <div class="note-controls input-container">
         <input type="text" id="noteText" placeholder="Enter note text">
         <button id="newNote">Send to All</button>
+    </div> -->
+    <div id="broadcast" class="input-container">
+        <button id="startBroadcast">Broadcast Microphone</button>
     </div>
-    <div id="broadcast">
-        <button id="startBroadcast">Start Broadcast</button>
-    </div>
-    <div id="aibroadcast">
+    <div id="aibroadcast" class="input-container">
         <input type="text" id="prompt" placeholder="Prompt to LLM">
         <button id="sendPrompt">Broadcast AI Response</button>
     </div>
-    <div id="users"></div>
-    <div class="status">🎬 Backstage</div>
+    
+    <div class="users-container">
+        <div class="status">🎬 Backstage</div>
+        <div class="users-header">Connected Clients</div>
+        <div id="users" class="users-list"></div>
+    </div>
     <script src="/utils.js"></script>
     <script src="/dramaturg.js"></script> 
 </body>
