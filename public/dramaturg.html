@@ -230,6 +230,9 @@
     .response .prompt, 
     .response .ai-response {
         padding: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .response .arrow {
@@ -240,33 +243,45 @@
         background: rgba(255, 255, 255, 0.05);
     }
 
+    .response .role-icon {
+        opacity: 0.7;
+    }
+
+    .fixed-button {
+        min-width: 100px;
+
+    }
+
     .role-toggle {
-        font-size: 12px;
-        padding: 2px 8px;
-        margin-left: 8px;
-        border-radius: 4px;
-        cursor: pointer;
-        background: var(--bg-color);
-        border: 1px solid var(--border-color);
+        min-width: 100px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
     }
     
     .role-toggle:hover {
         background: var(--hover-color);
+    }
+
+    .role-icon {
+        font-size: 1.2em;
+        line-height: 1;
     }
     </style>
 </head>
     <body>
         <div class="role-key">
             <div class="role-key-item">
-                <div class="key-color" style="background-color: #4CAF50"></div>
+                <span class="role-icon">👁️</span>
                 <span>Audience</span>
             </div>
             <div class="role-key-item">
-                <div class="key-color" style="background-color: #2196F3"></div>
+                <span class="role-icon">🎭</span>
                 <span>Performer</span>
             </div>
             <div class="role-key-item">
-                <div class="key-color" style="background-color: #9C27B0"></div>
+                <span class="role-icon">📝</span>
                 <span>Dramaturg</span>
             </div>
         </div>
@@ -277,14 +292,26 @@
         </div> -->
         <div id="broadcast" class="input-container">
             <button id="startBroadcast">Broadcast Microphone</button>
+            <button class="fixed-button role-toggle" onclick="toggleBroadcastRole('audio')">
+                <span class="role-icon">👁️</span>
+                <span>audience</span>
+            </button>
         </div>
         <div id="aibroadcast" class="input-container">
             <input type="text" id="prompt" placeholder="Prompt to LLM">
-            <button id="sendPrompt">Broadcast AI Response</button>
+            <button id="sendPrompt">Broadcast Response</button>
+            <button class="fixed-button role-toggle" onclick="toggleBroadcastRole('prompt')">
+                <span class="role-icon">👁️</span>
+                <span>audience</span>
+            </button>
         </div>
         <div id="speakTo" class="input-container">
             <input type="text" id="speakToText" placeholder="Speak directly to performers">
-            <button id="speakToPerformer">Speak to Performers</button>
+            <button id="speakToPerformer">Speak</button>
+            <button class="fixed-button role-toggle" onclick="toggleBroadcastRole('speak')">
+                <span class="role-icon">🎭</span>
+                <span>performer</span>
+            </button>
         </div>
         <div id="prompts"></div>
         <div class="users-container">

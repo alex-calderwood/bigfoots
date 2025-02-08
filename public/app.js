@@ -191,6 +191,7 @@ function promptForName() {
     if (name) {
       document.body.removeChild(overlay);
       appState.nick = '👤' + name.slice(-12);
+      document.querySelector('.status .nick').textContent = appState.nick;
       initializeWebSocket();
       handleTuneIn(); // Auto-tune in when joining
     }
@@ -203,8 +204,6 @@ function promptForName() {
 }
 
 function handleTuneIn() {    
-    const tuneInButton = document.getElementById('tuneIn');
-    
     if (!appState.audioContext) {
         appState.audioContext = new AudioContext();
         appState.audioContext.resume();
@@ -214,14 +213,11 @@ function handleTuneIn() {
         appState.analyser = createAudioMeter(appState.audioContext, document.getElementById('broadcast'));
         appState.audioWorklet.connect(appState.analyser);
         appState.analyser.connect(appState.audioContext.destination);
-        
-        tuneInButton.textContent = 'Leave Broadcast';
     } else {
         // Clean up audio context and UI
         appState.audioContext.close();
         appState.audioContext = null;
         document.getElementById('broadcast').innerHTML = '';
-        tuneInButton.textContent = 'Tune In';
     }
 }
 

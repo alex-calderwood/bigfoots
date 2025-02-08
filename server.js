@@ -226,6 +226,7 @@ async function handleSpeak(msg, client) {
         type: 'promptResponse',
         prompt: 'Direct to performer',
         response: msg.text,
+        sendToRole: msg.sendToRole
     }, dramaturge);
   }
 }
@@ -406,6 +407,7 @@ async function handlePrompt(msg, client) {
         type: 'promptResponse',
         prompt: msg.text,
         response: aiResponse,
+        sendToRole: msg.sendToRole
     }, dramaturge);
   }
 }

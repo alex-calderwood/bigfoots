@@ -4,14 +4,12 @@ const appState = {
     socket: null,
     connected: false,
     users: {}, // Map of user IDs to user data
+    broadcastRoles: {
+        audio: 'audience',
+        prompt: 'audience', 
+        speak: 'performer'
+    }
 };
-
-const ROLE_COLORS = {
-    'audience': '#4CAF50',      // Green
-    'performer': '#2196F3',     // Blue
-    'dramaturg': '#9C27B0'      // Purple
-};
-
 
 // Send message to server
 function sendMessage(msg) {
@@ -73,9 +71,15 @@ function refreshUserList(userData) {
         </div>
     ` : '';
 
+    const roleIcons = {
+        'audience': '👁️',
+        'performer': '🎭',
+        'dramaturg': '📝'
+    };
+
     userEl.innerHTML = `
         <div class="user-info">
-            <span class="role-indicator" style="background-color: ${ROLE_COLORS[userData.role] || '#666'}"></span>
+            <span class="role-icon">${roleIcons[userData.role] || '❓'}</span>
             <span class="user-emoji">${userData.nick}</span>
             <span class="user-id">${userData.id}</span>
             <button class="role-toggle" onclick="toggleRole('${userData.id}', '${userData.role}')">
@@ -148,11 +152,21 @@ function handlePromptResponse(msg) {
         appState.users[msg.userId].feedbacks.push(msg.feedback);
         refreshUserList(appState.users[msg.userId]);
     }
+    
+    const roleIcons = {
+        'audience': '👁️',
+        'performer': '🎭',
+        'dramaturg': '📝'
+    };
+    
     const broadcast = document.getElementById("prompts");
     const response = document.createElement('div');
     response.className = 'response';
     response.innerHTML = `
-        <div class="prompt">${msg.prompt}</div>
+        <div class="prompt">
+            <span class="role-icon">${roleIcons[msg.sendToRole] || '❓'}</span>
+            ${msg.prompt}
+        </div>
         <div class="arrow">→</div>
         <div class="ai-response">${msg.response || 'Waiting for response...'}</div>
     `;
@@ -267,7 +281,8 @@ function handleStartBroadcast() {
                     sampleRate: audioContext.sampleRate,
                     channels: 1,
                     frameSize: 1024,
-                }
+                },
+                sendToRole: appState.broadcastRoles.audio
             });
         };
         
@@ -278,15 +293,14 @@ function handleStartBroadcast() {
 
 
 function sendPrompt() {
-    console.log("sendPrompt");
     const text = document.getElementById('prompt').value;
     if (text.trim()) {
         sendMessage({
             type: 'prompt',
             text: text,
-            sendToRole: 'audience',
+            sendToRole: appState.broadcastRoles.prompt,
         });
-        document.getElementById('prompt').value = ''; // Clear input after sending
+        document.getElementById('prompt').value = '';
     }
 }
 
@@ -296,9 +310,9 @@ function speakTo() {
         sendMessage({
             type: 'speak',
             text: text,
-            sendToRole: 'performer',
+            sendToRole: appState.broadcastRoles.speak,
         });
-        document.getElementById('speakToText').value = ''; // Clear input after sending
+        document.getElementById('speakToText').value = '';
     }
 }
 
@@ -340,4 +354,25 @@ function toggleRole(userId, currentRole) {
         userId: userId,
         newRole: nextRole
     });
+}
+
+function toggleBroadcastRole(type) {
+    const roles = ['audience', 'performer'];
+    const roleIcons = {
+        'audience': '👁️',
+        'performer': '🎭',
+        'dramaturg': '📝'
+    };
+    const button = document.querySelector(`button[onclick="toggleBroadcastRole('${type}')"]`);
+    const currentRole = appState.broadcastRoles[type];
+    const currentIndex = roles.indexOf(currentRole);
+    const nextRole = roles[(currentIndex + 1) % roles.length];
+    
+    appState.broadcastRoles[type] = nextRole;
+    
+    // Update both the icon and text
+    button.innerHTML = `
+        <span class="role-icon">${roleIcons[nextRole]}</span>
+        <span>${nextRole}</span>
+    `;
 }
