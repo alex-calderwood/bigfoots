@@ -159,7 +159,7 @@ document.getElementById('sendNote').onclick = async () => {
 // Initialize page
 function initPage() {
   promptForName();
-  document.getElementById('tuneIn').onclick = handleTuneIn;
+  // Removed tuneIn button handler
   // document.getElementById('attachFile').addEventListener('change', handleFileSelect); // send file
 }
 
@@ -192,6 +192,7 @@ function promptForName() {
       document.body.removeChild(overlay);
       appState.nick = '👤' + name.slice(-12);
       initializeWebSocket();
+      handleTuneIn(); // Auto-tune in when joining
     }
   }
 
