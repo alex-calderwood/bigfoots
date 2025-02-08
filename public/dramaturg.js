@@ -11,6 +11,12 @@ const appState = {
     }
 };
 
+const roleIcons = {
+    'audience': '👁️',
+    'performer': '🎭',
+    'dramaturg': '📝'
+};
+
 // Send message to server
 function sendMessage(msg) {
     if (!appState.socket || !appState.connected) {
@@ -71,11 +77,6 @@ function refreshUserList(userData) {
         </div>
     ` : '';
 
-    const roleIcons = {
-        'audience': '👁️',
-        'performer': '🎭',
-        'dramaturg': '📝'
-    };
 
     userEl.innerHTML = `
         <div class="user-info">
@@ -152,12 +153,6 @@ function handlePromptResponse(msg) {
         appState.users[msg.userId].feedbacks.push(msg.feedback);
         refreshUserList(appState.users[msg.userId]);
     }
-    
-    const roleIcons = {
-        'audience': '👁️',
-        'performer': '🎭',
-        'dramaturg': '📝'
-    };
     
     const broadcast = document.getElementById("prompts");
     const response = document.createElement('div');
@@ -358,11 +353,6 @@ function toggleRole(userId, currentRole) {
 
 function toggleBroadcastRole(type) {
     const roles = ['audience', 'performer'];
-    const roleIcons = {
-        'audience': '👁️',
-        'performer': '🎭',
-        'dramaturg': '📝'
-    };
     const button = document.querySelector(`button[onclick="toggleBroadcastRole('${type}')"]`);
     const currentRole = appState.broadcastRoles[type];
     const currentIndex = roles.indexOf(currentRole);
