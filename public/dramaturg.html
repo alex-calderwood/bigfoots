@@ -239,6 +239,20 @@
     .response .ai-response {
         background: rgba(255, 255, 255, 0.05);
     }
+
+    .role-toggle {
+        font-size: 12px;
+        padding: 2px 8px;
+        margin-left: 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+    }
+    
+    .role-toggle:hover {
+        background: var(--hover-color);
+    }
     </style>
 </head>
     <body>
@@ -251,10 +265,6 @@
                 <div class="key-color" style="background-color: #2196F3"></div>
                 <span>Performer</span>
             </div>
-            <!-- <div class="role-key-item">
-                <div class="key-color" style="background-color: #FF9800"></div>
-                <span>Operator</span>
-            </div> -->
             <div class="role-key-item">
                 <div class="key-color" style="background-color: #9C27B0"></div>
                 <span>Dramaturg</span>
@@ -271,6 +281,10 @@
         <div id="aibroadcast" class="input-container">
             <input type="text" id="prompt" placeholder="Prompt to LLM">
             <button id="sendPrompt">Broadcast AI Response</button>
+        </div>
+        <div id="speakTo" class="input-container">
+            <input type="text" id="speakToText" placeholder="Speak directly to performers">
+            <button id="speakToPerformer">Speak to Performers</button>
         </div>
         <div id="prompts"></div>
         <div class="users-container">

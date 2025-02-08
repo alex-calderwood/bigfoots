@@ -58,7 +58,6 @@ function refreshNote(note) {
     noteEl.className = 'note';
     document.getElementById('notes').appendChild(noteEl);
     
-    // Add editable text
     const textEl = document.createElement('div');
     textEl.innerText = note.text;
 
@@ -98,6 +97,7 @@ function initializeWebSocket() {
       updateNote: handleUpdateNote,
       deleteNote: handleDeleteNote,
       audio: handleAudioData,
+      roleChanged: handleRoleChanged,
     };
 
     const handler = handlers[msg.type];
@@ -263,7 +263,6 @@ function handleFileSelect(event) {
 async function handleAudioData(msg) {
   if (!appState.audioContext) return;
 
-  // Always expect a format field that specifies the type
   if (!msg.format) {
       console.error("No audio format specified");
       return;
@@ -301,6 +300,18 @@ async function handleAudioData(msg) {
   } catch (error) {
       console.error("Error processing audio data:", error);
   }
+}
+
+
+async function handleRoleChanged(msg) {
+    appState.role = msg.newRole;
+    const statusDiv = document.querySelector('.status');
+    const roleIcons = {
+        'audience': '👁️',
+        'performer': '🎭',
+        'dramaturg': '📝'
+    };
+    statusDiv.textContent = `${roleIcons[msg.newRole] || '❓'} ${msg.newRole.charAt(0).toUpperCase() + msg.newRole.slice(1)}`;
 }
 
 // start everything when page loads

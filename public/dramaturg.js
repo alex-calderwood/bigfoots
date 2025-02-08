@@ -7,10 +7,9 @@ const appState = {
 };
 
 const ROLE_COLORS = {
-    'audience': '#4CAF50',  // Green
-    'artist': '#2196F3',      // Blue
-    'operator': '#FF9800',    // Orange
-    'dramaturg': '#9C27B0'    // Purple
+    'audience': '#4CAF50',      // Green
+    'performer': '#2196F3',     // Blue
+    'dramaturg': '#9C27B0'      // Purple
 };
 
 
@@ -79,6 +78,9 @@ function refreshUserList(userData) {
             <span class="role-indicator" style="background-color: ${ROLE_COLORS[userData.role] || '#666'}"></span>
             <span class="user-emoji">${userData.nick}</span>
             <span class="user-id">${userData.id}</span>
+            <button class="role-toggle" onclick="toggleRole('${userData.id}', '${userData.role}')">
+                ${userData.role}
+            </button>
         </div>
         ${feedbacksHtml}
     `;
@@ -237,6 +239,7 @@ function initPage() {
 }
 
 document.getElementById('sendPrompt').onclick = sendPrompt;
+document.getElementById('speakToPerformer').onclick = speakTo;
 
 
 function handleStartBroadcast() {
@@ -280,9 +283,22 @@ function sendPrompt() {
     if (text.trim()) {
         sendMessage({
             type: 'prompt',
-            text: text
+            text: text,
+            sendToRole: 'audience',
         });
         document.getElementById('prompt').value = ''; // Clear input after sending
+    }
+}
+
+function speakTo() {
+    const text = document.getElementById('speakToText').value;
+    if (text.trim()) {
+        sendMessage({
+            type: 'speak',
+            text: text,
+            sendToRole: 'performer',
+        });
+        document.getElementById('speakToText').value = ''; // Clear input after sending
     }
 }
 
@@ -312,3 +328,16 @@ function toggleUsersPanel() {
 }
 
 window.addEventListener('load', initPage);
+
+// Add these new functions
+function toggleRole(userId, currentRole) {
+    const roles = ['audience', 'performer'];
+    const currentIndex = roles.indexOf(currentRole);
+    const nextRole = roles[(currentIndex + 1) % roles.length];
+    
+    sendMessage({
+        type: 'updateRole',
+        userId: userId,
+        newRole: nextRole
+    });
+}

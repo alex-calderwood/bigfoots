@@ -160,13 +160,73 @@ function handleAudioData(msg, client) {
 
   // Broadcast to all non-dramaturg clients
   for (const targetClient of Object.values(appState.clients)) {
-      if (targetClient.role !== 'dramaturg') {
+      if (targetClient.role == msg.sendToRole) {
           sendMessage({
               type: 'audio',
               data: msg.data,
               format: msg.format,
           }, targetClient);
       }
+  }
+}
+
+function handleUpdateRole(msg, client) {
+    if (client.role !== 'dramaturg') return; // Only dramaturgs can change roles
+    
+    const targetUser = appState.clients[msg.userId];
+    if (!targetUser) return;
+    
+    targetUser.role = msg.newRole;
+    
+    // Notify all dramaturgs about the role change
+    for (const dramaturgeId of appState.dramaturgs) {
+        const dramaturge = appState.clients[dramaturgeId];
+        sendMessage({
+            type: 'updateUser',
+            user: {
+                id: targetUser.id,
+                nick: targetUser.nick,
+                position: targetUser.position,
+                feedbacks: targetUser.feedbacks,
+                role: targetUser.role,
+            }
+        }, dramaturge);
+    }
+    
+    // Notify the user about their role change
+    sendMessage({
+        type: 'roleChanged',
+        newRole: msg.newRole
+    }, targetUser);
+}
+
+
+
+async function handleSpeak(msg, client) {
+  if (client.role !== 'dramaturg') return; // Only dramaturgs can broadcast TTS
+  
+  const audioStream = await textToSpeech(msg.text);
+  const audioData = await handleStreamData(audioStream);
+
+  for (const targetClient of Object.values(appState.clients)) {
+      if (targetClient.role == msg.sendToRole) {
+          sendMessage({
+              type: 'audio',
+              data: audioData.data,
+              format: audioData.format,
+              text: msg.text,
+          }, targetClient);
+      }
+  }
+
+  // Notify dramaturgs about the direct message
+  for (const dramaturgeId of appState.dramaturgs) {
+    const dramaturge = appState.clients[dramaturgeId];
+    sendMessage({
+        type: 'promptResponse',
+        prompt: 'Direct to performer',
+        response: msg.text,
+    }, dramaturge);
   }
 }
 // ---------------- END MESSAGE HANDLERS ----------------
@@ -251,6 +311,8 @@ wss.on('connection', (socket) => {
       updateUserPosition: handleUpdateUserPosition,
       audio: handleAudioData,
       prompt: handlePrompt,
+      updateRole: handleUpdateRole,
+      speak: handleSpeak,
     };
 
     const handler = handlers[msg.type];
@@ -327,7 +389,7 @@ async function handlePrompt(msg, client) {
   const audioData = await handleStreamData(audioStream);
   
   for (const targetClient of Object.values(appState.clients)) {
-      if (targetClient.role !== 'dramaturg') {
+      if (targetClient.role == msg.sendToRole) {
           sendMessage({
               type: 'audio',
               data: audioData.data,
