@@ -122,9 +122,9 @@ function initializeWebSocket() {
 
 document.getElementById('sendNote').onclick = async () => {
     const noteInput = document.getElementById('noteInput');
-    const fileInput = document.getElementById('attachFile');
+    // const fileInput = document.getElementById('attachFile'); // send file
     const text = noteInput.value.trim();
-    const file = fileInput.files[0];
+    // const file = fileInput.files[0]; // // send file
     
     if (text || file) {
         const feedbackData = {
@@ -132,26 +132,27 @@ document.getElementById('sendNote').onclick = async () => {
             text: text
         };
 
-        if (file) {
-            const fileReader = new FileReader();
-            fileReader.onload = function(e) {
-                feedbackData.attachment = {
-                    type: file.type,
-                    name: file.name,
-                    data: e.target.result
-                };
-                sendFeedback(feedbackData);
-            };
-            fileReader.readAsDataURL(file);
-        } else {
-            sendFeedback(feedbackData);
-        }
+        // // send file
+        // if (file) {
+        //     const fileReader = new FileReader();
+        //     fileReader.onload = function(e) {
+        //         feedbackData.attachment = {
+        //             type: file.type,
+        //             name: file.name,
+        //             data: e.target.result
+        //         };
+        //         sendFeedback(feedbackData);
+        //     };
+        //     fileReader.readAsDataURL(file);
+        // } else {
+        //     sendFeedback(feedbackData);
+        // }
         
-        // Clear inputs
-        noteInput.value = '';
-        fileInput.value = '';
-        document.getElementById('fileName').textContent = '';
-        document.querySelector('.preview-container').style.display = 'none';
+          // Clear inputs
+          noteInput.value = '';
+          // fileInput.value = ''; // send file
+          // document.getElementById('fileName').textContent = ''; // send file
+          document.querySelector('.preview-container').style.display = 'none';
     }
 };
   
@@ -159,7 +160,7 @@ document.getElementById('sendNote').onclick = async () => {
 function initPage() {
   promptForName();
   document.getElementById('tuneIn').onclick = handleTuneIn;
-  document.getElementById('attachFile').addEventListener('change', handleFileSelect);
+  // document.getElementById('attachFile').addEventListener('change', handleFileSelect); // send file
 }
 
 function promptForName() {

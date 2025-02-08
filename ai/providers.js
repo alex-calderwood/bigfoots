@@ -30,7 +30,7 @@ const callOpenAI = async (prompt) => {
         console.log(`sv:ai:openai: ${err}.\nInstall with:\n\tnpm install openai`)
         return null;
     }
-        
+    
     const openai = new OpenAI({
         apiKey: config.openai.key,
     });

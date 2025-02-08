@@ -146,7 +146,7 @@ function handlePromptResponse(msg) {
         appState.users[msg.userId].feedbacks.push(msg.feedback);
         refreshUserList(appState.users[msg.userId]);
     }
-    const broadcast = document.getElementById("aibroadcast");
+    const broadcast = document.getElementById("prompts");
     const response = document.createElement('div');
     response.className = 'response';
     response.innerHTML = `

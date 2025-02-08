@@ -77,6 +77,12 @@
         display: flex;
     }
 
+    #prompts {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
     .users-list {
         max-height: 30vh;
         overflow-y: auto;
@@ -216,7 +222,6 @@
         display: flex;
         align-items: center;
         gap: 1rem;
-        margin: 1rem 0;
         padding: 0.5rem;
         border: 1px solid var(--border-color);
         border-radius: 4px;
@@ -236,43 +241,44 @@
     }
     </style>
 </head>
-<body>
-    <div class="role-key">
-        <div class="role-key-item">
-            <div class="key-color" style="background-color: #4CAF50"></div>
-            <span>Audience</span>
+    <body>
+        <div class="role-key">
+            <div class="role-key-item">
+                <div class="key-color" style="background-color: #4CAF50"></div>
+                <span>Audience</span>
+            </div>
+            <div class="role-key-item">
+                <div class="key-color" style="background-color: #2196F3"></div>
+                <span>Performer</span>
+            </div>
+            <!-- <div class="role-key-item">
+                <div class="key-color" style="background-color: #FF9800"></div>
+                <span>Operator</span>
+            </div> -->
+            <div class="role-key-item">
+                <div class="key-color" style="background-color: #9C27B0"></div>
+                <span>Dramaturg</span>
+            </div>
         </div>
-        <div class="role-key-item">
-            <div class="key-color" style="background-color: #2196F3"></div>
-            <span>Artist</span>
+        <!-- send file -->
+        <!-- <div class="note-controls input-container"> 
+            <input type="text" id="noteText" placeholder="Enter note text">
+            <button id="newNote">Send to All</button>
+        </div> -->
+        <div id="broadcast" class="input-container">
+            <button id="startBroadcast">Broadcast Microphone</button>
         </div>
-        <div class="role-key-item">
-            <div class="key-color" style="background-color: #FF9800"></div>
-            <span>Operator</span>
+        <div id="aibroadcast" class="input-container">
+            <input type="text" id="prompt" placeholder="Prompt to LLM">
+            <button id="sendPrompt">Broadcast AI Response</button>
         </div>
-        <div class="role-key-item">
-            <div class="key-color" style="background-color: #9C27B0"></div>
-            <span>Dramaturg</span>
+        <div id="prompts"></div>
+        <div class="users-container">
+            <div class="status">🎬 Backstage</div>
+            <div class="users-header">Connected Clients</div>
+            <div id="users" class="users-list"></div>
         </div>
-    </div>
-    <!-- <div class="note-controls input-container">
-        <input type="text" id="noteText" placeholder="Enter note text">
-        <button id="newNote">Send to All</button>
-    </div> -->
-    <div id="broadcast" class="input-container">
-        <button id="startBroadcast">Broadcast Microphone</button>
-    </div>
-    <div id="aibroadcast" class="input-container">
-        <input type="text" id="prompt" placeholder="Prompt to LLM">
-        <button id="sendPrompt">Broadcast AI Response</button>
-    </div>
-    
-    <div class="users-container">
-        <div class="status">🎬 Backstage</div>
-        <div class="users-header">Connected Clients</div>
-        <div id="users" class="users-list"></div>
-    </div>
-    <script src="/utils.js"></script>
-    <script src="/dramaturg.js"></script> 
-</body>
+        <script src="/utils.js"></script>
+        <script src="/dramaturg.js"></script> 
+    </body>
 </html>

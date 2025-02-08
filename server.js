@@ -177,10 +177,10 @@ const httpServer = http.createServer((req, res) => {
   
   const basePath = "./public" + req.url;
   if (req.url === '/') {
-    fs.readFile('./public/index.html', (err, data) => {
+    fs.readFile('./public/audience.html', (err, data) => {
       if (err) {
         res.writeHead(500);
-        res.end('Error loading index.html');
+        res.end('Error loading audience.html');
         return;
       }
       res.writeHead(200);
