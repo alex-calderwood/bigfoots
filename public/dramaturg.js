@@ -90,14 +90,12 @@ function refreshUserList(userData) {
         ${feedbacksHtml}
     `;
 
-    // Update user count
     const userCount = document.getElementById('user-count');
     if (userCount) {
         userCount.textContent = usersList.children.length;
     }
 }
 
-// Add this new function to handle feedback toggle
 function toggleFeedback(button) {
     const feedbacksDiv = button.parentElement.querySelector('.user-feedbacks');
     const isHidden = feedbacksDiv.style.display === 'none';
@@ -105,7 +103,6 @@ function toggleFeedback(button) {
     button.textContent = isHidden ? 'hide' : 'feedback';
 }
 
-// Remove a user card
 function removeUserCard(userId) {
     const userEl = document.getElementById(userId);
     if (userEl) userEl.remove();
@@ -316,11 +313,9 @@ function initializeUsersPanel() {
     const tab = document.querySelector('.users-tab');
     const containerHeight = container.offsetHeight;
     
-    // Set initial position of the tab
     tab.style.bottom = containerHeight + 'px';
 }
 
-// Call it when the page loads
 window.addEventListener('load', initializeUsersPanel);
 
 function toggleUsersPanel() {
@@ -338,7 +333,6 @@ function toggleUsersPanel() {
 
 window.addEventListener('load', initPage);
 
-// Add these new functions
 function toggleRole(userId, currentRole) {
     const roles = ['audience', 'performer'];
     const currentIndex = roles.indexOf(currentRole);
