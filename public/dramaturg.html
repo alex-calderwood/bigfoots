@@ -306,9 +306,25 @@
             </button>
         </div>
         <div id="speakTo" class="input-container">
-            <input type="text" id="speakToText" placeholder="Speak directly to performers">
+            <input type="text" id="speakToText" placeclipUploadholder="Speak directly to performers">
             <button id="speakToPerformer">Speak</button>
             <button class="fixed-button role-toggle" onclick="toggleBroadcastRole('speak')">
+                <span class="role-icon">🎭</span>
+                <span>performer</span>
+            </button>
+        </div>
+        <div id="clips1" class="input-container">
+            <input type="file" id="clipUpload1" accept="audio/*">
+            <button id="playClip1">Play Clip 1</button>
+            <button class="fixed-button role-toggle" onclick="toggleBroadcastRole('clips1')">
+                <span class="role-icon">🎭</span>
+                <span>performer</span>
+            </button>
+        </div>
+        <div id="clips2" class="input-container">
+            <input type="file" id="clipUpload2" accept="audio/*">
+            <button id="playClip2">Play Clip 2</button>
+            <button class="fixed-button role-toggle" onclick="toggleBroadcastRole('clips2')">
                 <span class="role-icon">🎭</span>
                 <span>performer</span>
             </button>

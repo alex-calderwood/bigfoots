@@ -310,10 +310,10 @@ wss.on('connection', (socket) => {
       identify: handleIdentify,
       sendFeedback: handleSendFeedback,
       updateUserPosition: handleUpdateUserPosition,
-      audio: handleAudioData,
-      prompt: handlePrompt,
       updateRole: handleUpdateRole,
       speak: handleSpeak,
+      audio: handleAudioData,
+      prompt: handlePrompt,
     };
 
     const handler = handlers[msg.type];

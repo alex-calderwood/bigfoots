@@ -7,7 +7,8 @@ const appState = {
     broadcastRoles: {
         audio: 'audience',
         prompt: 'audience', 
-        speak: 'performer'
+        speak: 'performer',
+        clips: 'performer'
     }
 };
 
@@ -246,7 +247,8 @@ function initPage() {
 
 document.getElementById('sendPrompt').onclick = sendPrompt;
 document.getElementById('speakToPerformer').onclick = speakTo;
-
+document.getElementById('playClip1').onclick = () => playClip('1');
+document.getElementById('playClip2').onclick = () => playClip('2');
 
 function handleStartBroadcast() {
     navigator.mediaDevices.getUserMedia({ audio: true, video: false })
@@ -359,4 +361,65 @@ function toggleBroadcastRole(type) {
         <span class="role-icon">${roleIcons[nextRole]}</span>
         <span>${nextRole}</span>
     `;
+}
+
+async function playClip(clipNum) {
+    const fileInput = document.getElementById(`clipUpload${clipNum}`);
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    console.log(`File ${clipNum} details:`, {
+        type: file.type,
+        size: file.size,
+        name: file.name
+    });
+
+    // Read file and immediately create a Uint8Array
+    const originalBuffer = await file.arrayBuffer();
+    const audioData = new Uint8Array(originalBuffer);
+    
+    const audioContext = new AudioContext();
+    
+    // Use the Uint8Array's buffer for decoding
+    const audioBuffer = await audioContext.decodeAudioData(audioData.buffer.slice(0));
+    
+    const messageData = Array.from(audioData);
+    
+    // Check headers
+    const isMP3 = (audioData[0] === 255 && audioData[1] === 251);
+    const isWAV = (
+        audioData[0] === 82 && // 'R'
+        audioData[1] === 73 && // 'I'
+        audioData[2] === 70 && // 'F'
+        audioData[3] === 70    // 'F'
+    );
+    
+    // Determine codec
+    let codec = 'pcm';
+    if (isMP3) codec = 'mp3';
+    if (isWAV) codec = 'wav';
+    
+    console.log(`Sending audio data ${clipNum}:`, {
+        dataType: typeof messageData,
+        length: messageData.length,
+        sampleOfData: messageData.slice(0, 10),
+        format: {
+            codec: codec,
+            sampleRate: audioBuffer.sampleRate,
+            channels: audioBuffer.numberOfChannels,
+        }
+    });
+
+    sendMessage({
+        type: 'audio',
+        data: messageData,
+        format: {
+            codec: codec,
+            sampleRate: audioBuffer.sampleRate,
+            channels: audioBuffer.numberOfChannels,
+            bitrate: 128,
+            encoding: codec === 'mp3' ? 'audio/mpeg' : 'audio/wav'
+        },
+        sendToRole: appState.broadcastRoles[`clips${clipNum}`]
+    });
 }
