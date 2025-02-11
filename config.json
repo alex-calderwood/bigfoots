@@ -1,4 +1,21 @@
 {
-    "eleven_labs": "your_key",
-    "gemini": "your_key"
+    "providers": {
+        "llm": "openai",
+        "text2speech": "eleven_labs"
+    },
+    "eleven_labs": {
+        "key": "your_key"
+    },
+    "gemini": {
+        "key": "your_key"
+    },
+    "openaiGemini": {
+        "key": "your_key",
+        "model": "gemini-1.5-flash",
+        "url": "https://generativelanguage.googleapis.com/v1beta/openai/"
+    },
+    "openai": {
+        "key":   "your_key",
+        "model": "chatgpt-4o-latest"
+    }
 }
