@@ -15,8 +15,11 @@ const appState = {
 const roleIcons = {
     'audience': '👁️',
     'performer': '🎭',
-    'dramaturg': '📝'
+    'dramaturg': '📝',
+    'orca': '🐋'
 };
+
+const roles = Object.keys(roleIcons).filter(role => role !== 'dramaturg');
 
 // Send message to server
 function sendMessage(msg) {
@@ -336,7 +339,6 @@ function toggleUsersPanel() {
 window.addEventListener('load', initPage);
 
 function toggleRole(userId, currentRole) {
-    const roles = ['audience', 'performer'];
     const currentIndex = roles.indexOf(currentRole);
     const nextRole = roles[(currentIndex + 1) % roles.length];
     
@@ -348,7 +350,6 @@ function toggleRole(userId, currentRole) {
 }
 
 function toggleBroadcastRole(type) {
-    const roles = ['audience', 'performer'];
     const button = document.querySelector(`button[onclick="toggleBroadcastRole('${type}')"]`);
     const currentRole = appState.broadcastRoles[type];
     const currentIndex = roles.indexOf(currentRole);
@@ -398,17 +399,6 @@ async function playClip(clipNum) {
     let codec = 'pcm';
     if (isMP3) codec = 'mp3';
     if (isWAV) codec = 'wav';
-    
-    console.log(`Sending audio data ${clipNum}:`, {
-        dataType: typeof messageData,
-        length: messageData.length,
-        sampleOfData: messageData.slice(0, 10),
-        format: {
-            codec: codec,
-            sampleRate: audioBuffer.sampleRate,
-            channels: audioBuffer.numberOfChannels,
-        }
-    });
 
     sendMessage({
         type: 'audio',

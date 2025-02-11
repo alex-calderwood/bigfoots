@@ -156,10 +156,8 @@ document.getElementById('sendNote').onclick = async () => {
     }
 };
   
-// Initialize page
 function initPage() {
   promptForName();
-  // Removed tuneIn button handler
   // document.getElementById('attachFile').addEventListener('change', handleFileSelect); // send file
 }
 
@@ -276,7 +274,7 @@ async function handleAudioData(msg) {
         switch (msg.format.codec) {
             case 'mp3':
             case 'wav':
-                // Both MP3 and WAV can be decoded the same way
+                // Both MP3 and WAV need to be decoded
                 const audioData = new Uint8Array(msg.data);
                 console.log('Audio processing:', {
                     codec: msg.format.codec,
@@ -318,7 +316,8 @@ async function handleRoleChanged(msg) {
     const roleIcons = {
         'audience': '👁️',
         'performer': '🎭',
-        'dramaturg': '📝'
+        'dramaturg': '📝',
+        'orca': '🐋'
     };
     statusDiv.textContent = `${roleIcons[msg.newRole] || '❓'} ${msg.newRole.charAt(0).toUpperCase() + msg.newRole.slice(1)}`;
 }

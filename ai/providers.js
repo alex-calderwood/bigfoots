@@ -65,7 +65,7 @@ const callOpenAI = async (prompt) => {
         baseURL: config.openaiGemini?.url,
     });
 
-    // write now we are using the gemini api key through the openai endpoint
+    // right now we are using the gemini api key through the openai endpoint
     const response = await openai.chat.completions.create({
         model: config.openaiGemini.model,
         messages: [
@@ -82,26 +82,6 @@ const llmProviders = {
     openai: callOpenAI,
     openaiGemini: callOpenAIGemini, 
 };
-
-// const callElevenLabs = async (text) => { // https://github.com/elevenlabs/elevenlabs-js
-//     let ElevenLabsClient, play;
-//     try {
-//         ({ ElevenLabsClient, play } = require('elevenlabs'));
-//     } catch(err) {
-//         console.log(`sv:ai:11labs: ${err}.\nInstall with:\n\tnpm install elevenlabs`)
-//         return null;
-//     }
-    
-//     const client = new ElevenLabsClient({apiKey: config.eleven_labs.key});
-//     const audio = await client.textToSpeech.convert("JBFqnCBsd6RMkjVDRZzb", {
-//       text: text,
-//       model_id: config.eleven_labs.model,
-//       output_format: "mp3_44100_128",
-//     });
-//     console.log(audio);
-//     await play(audio);
-//     return audio;
-// };
 
 const callElevenLabs = async (text) => {
     let ElevenLabsClient, play;
