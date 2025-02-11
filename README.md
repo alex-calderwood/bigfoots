@@ -1,4 +1,8 @@
-# Bigfoots Brains
+# Bigfoots
+
+If you know You Know
+
+# Installing
 
 Obtain a copy of this repository ([How to](https://zapier.com/blog/how-to-download-from-github/)). Navigate to the folder in a terminal. Install dependencies:
 
